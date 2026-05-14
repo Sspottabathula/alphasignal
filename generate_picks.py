@@ -1,11 +1,11 @@
 """
-AlphaSignal — Expert Investor Daily Stock Analysis
-Modeled on 30 years of professional investing experience.
-Combines: macro analysis, fundamental screening, technical setup,
-sector rotation, risk/reward discipline, and position sizing.
+AlphaSignal v3 — Disciplined Stock Investor Daily Picks
+NO OPTIONS. NO FUTURES. NO MARGIN. NO SHORTS.
+BUY SHARES → HOLD → SELL SHARES. That is all.
 
-Runs via GitHub Actions every weekday at 9:15 AM ET.
-Generates 3-20 picks depending on market opportunity quality.
+Strategy: Only picks with >50% probability of hitting target.
+Uses: momentum + earnings revision + sector rotation + support/resistance.
+Timeframe: 5-21 days. Real prices. Real dates. Conservative targets.
 """
 
 import anthropic
@@ -20,179 +20,221 @@ PUSHOVER_USER     = os.environ.get("PUSHOVER_USER", "")
 DASHBOARD_URL     = "https://sspottabathula.github.io/alphasignal"
 OUTPUT_FILE       = "picks.json"
 
-today   = datetime.date.today().strftime("%A, %B %d, %Y")
-now_utc = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+today      = datetime.date.today()
+today_str  = today.strftime("%A, %B %d, %Y")
+now_utc    = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-PROMPT = f"""Today is {today}.
+# Compute target dates (skip weekends)
+def next_trading_day(d, n):
+    """Return date n trading days from d."""
+    cur = d
+    count = 0
+    while count < n:
+        cur += datetime.timedelta(days=1)
+        if cur.weekday() < 5:
+            count += 1
+    return cur
 
-You are a seasoned professional investor with 30 years of active market experience across bull markets, bear markets, the dot-com crash, 2008 financial crisis, COVID crash, and multiple Fed cycles. You have managed portfolios worth hundreds of millions of dollars.
+t5  = next_trading_day(today, 5).strftime("%B %d, %Y")   # ~1 week
+t10 = next_trading_day(today, 10).strftime("%B %d, %Y")  # ~2 weeks
+t15 = next_trading_day(today, 15).strftime("%B %d, %Y")  # ~3 weeks
 
-Your daily process combines:
-1. TOP-DOWN MACRO: Fed policy, rates, inflation, dollar, global flows
-2. SECTOR ROTATION: Which sectors are seeing institutional accumulation vs distribution
-3. FUNDAMENTAL SCREENING: Earnings revisions, revenue growth, margin expansion, free cash flow
-4. TECHNICAL SETUP: Price action, volume, moving averages, support/resistance, momentum
-5. CATALYST IDENTIFICATION: Earnings, FDA events, analyst days, product launches, regulatory decisions
-6. RISK/REWARD DISCIPLINE: Never recommend a trade without clear entry, stop, and target
-7. CONVICTION SIZING: High-conviction ideas get more capital; speculative ideas get less
+PROMPT = f"""Today is {today_str}.
 
-Today, scan the full US equity market and identify ALL stocks with a compelling setup for the next 3-21 days. Be selective but not artificially limited — generate between 3 and 20 picks depending on genuine market opportunity. In a strong trending market you may find 15-20 setups; in choppy conditions maybe only 3-5.
+You are a disciplined professional stock investor with 30 years of experience.
+You manage real money and are accountable for every recommendation.
 
-For EACH pick, apply this professional framework:
-- Is the risk/reward at least 2:1? (target gain must be 2x the stop-loss distance)
-- Is there a specific catalyst or technical trigger?
-- What does the chart say? (trend, volume, key levels)
-- What is the fundamental backdrop? (earnings growth, sector health)
-- How much capital should a retail investor allocate? (position sizing)
-- What exactly invalidates the thesis? (stop loss reasoning)
+=== ABSOLUTE RULES — NEVER VIOLATE ===
+1. STOCKS ONLY. Recommend buying and selling SHARES of stock. 
+   NEVER mention: calls, puts, options, contracts, strike price, expiry, 
+   derivatives, futures, margin, leverage, short selling, or any derivative instrument.
+   If you feel tempted to mention options — DON'T. Replace with the stock itself.
+2. All prices must be REALISTIC current market prices as of {today_str}.
+   Do NOT invent prices. Use your knowledge of recent stock prices.
+   NVDA trades around $900-1100, AAPL around $170-200, TSLA around $170-280,
+   AMZN around $180-210, META around $480-580, MSFT around $410-450, etc.
+3. Every pick must have >50% probability of hitting the buy target within 3 days
+   and >50% probability of hitting the sell target within the hold period.
+   Be CONSERVATIVE. A 3-5% gain that is likely beats a 15% gain that is unlikely.
+4. BUY PRICE: Set at or slightly below current price (0-2% below) so it is actionable.
+5. SELL PRICE: Set conservatively at 3-8% above buy price for most picks.
+   Only very high conviction picks get 8-15% targets.
+6. STOP LOSS: Set at 2-5% below buy price. Tight stops = capital preservation.
+7. Include a specific calendar date for: when to buy by, target sell date, stop date.
+8. Number of picks: Generate between 5 and 15 picks.
+   Only include a pick if you genuinely believe >50% probability of success.
+   Do NOT pad with weak ideas. Quality over quantity.
 
-INVESTMENT TYPES to consider:
-- Swing trades (3-7 days): momentum plays, earnings catalysts, technical breakouts
-- Position trades (2-4 weeks): fundamental re-ratings, sector rotations, post-earnings drifts
-- Special situations: FDA readouts, M&A rumors, activist involvement, short squeezes
-- Defensive plays: if market is bearish, include some safer large-cap ideas with lower risk
+=== YOUR ANALYSIS FRAMEWORK ===
+For each stock, evaluate:
+- PRICE MOMENTUM: Is the stock in an uptrend? Above 20-day and 50-day MA?
+- EARNINGS REVISION: Have analysts raised estimates recently? Earnings beat last quarter?
+- RELATIVE STRENGTH: Is this stock outperforming its sector and the S&P 500?
+- VOLUME: Is there institutional accumulation? Rising volume on up days?
+- CATALYST: Is there a specific upcoming event (earnings date, product launch, analyst day)?
+- VALUATION: Is it reasonably valued or at least not dangerously overvalued?
+- RISK: What specific event could cause it to drop? Is that risk likely?
 
-BUY SHARES ONLY. No options, no margin, no shorts. Retail-friendly.
+=== CONSERVATIVE TARGET LOGIC ===
+- Use resistance levels and recent highs as targets, not wishful thinking
+- If a stock recently broke out of a range, target the measured move (range height added to breakout)
+- Targets should be levels the stock has previously traded at or just above
+- Stop losses should be at key support (recent swing low, MA, round number)
 
-IMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, no code fences. Pure JSON only.
+=== DATE GUIDANCE ===
+- ~5 trading days from today = {t5}
+- ~10 trading days from today = {t10}  
+- ~15 trading days from today = {t15}
+Use these dates in your recommendations.
+
+RESPOND WITH ONLY VALID JSON. NO markdown. NO code fences. NO explanation. PURE JSON.
 
 {{
-  "date": "{today}",
+  "date": "{today_str}",
   "generated_at": "{now_utc}",
-  "analyst_note": "2-3 sentence professional market read. What is the market doing today and why. What is your overall posture.",
+  "analyst_note": "3-4 sentence honest market assessment. What is the S&P 500 doing? Which sectors are strong? What is the macro risk? Be specific and actionable, not generic.",
+  "market_sentiment": "bullish|cautious_bullish|neutral|cautious_bearish|bearish",
+  "market_summary": "One precise sentence: e.g. 'S&P 500 holding above 5,200 with tech leading; Fed pause narrative supporting risk assets but CPI data Thursday is a wildcard.'",
   "macro_backdrop": {{
     "fed_stance": "hawkish|neutral|dovish",
     "market_trend": "uptrend|downtrend|sideways",
     "volatility": "low|moderate|elevated|extreme",
-    "sector_leaders": ["Sector1", "Sector2"],
-    "sector_laggards": ["Sector1", "Sector2"],
-    "key_risk": "The single biggest market risk right now in one sentence."
+    "key_risk": "The single most important risk to watch this week.",
+    "sector_leaders": ["Technology", "Energy"],
+    "sector_laggards": ["Utilities", "Real Estate"]
   }},
-  "market_sentiment": "bullish|cautious_bullish|neutral|cautious_bearish|bearish",
-  "market_summary": "One crisp sentence on today's market environment.",
-  "total_picks": 5,
+  "total_picks": 7,
   "picks": [
     {{
       "rank": 1,
-      "conviction": "high|medium|speculative",
+      "conviction": "high",
       "ticker": "NVDA",
       "name": "NVIDIA Corporation",
       "sector": "Technology",
       "industry": "Semiconductors",
-      "trade_type": "Swing Trade|Position Trade|Special Situation|Defensive",
-      "thesis": "Precise 2-sentence investment thesis. What is the catalyst and why will this stock go up.",
-      "fundamental_view": "One sentence on earnings, revenue growth, or valuation that supports the thesis.",
-      "technical_setup": "One sentence on the chart — trend, key level, volume signal.",
-      "catalyst": "Specific upcoming catalyst with approximate timing.",
-      "entry_price": "$875.00",
-      "entry_strategy": "Buy at market open / Limit order at $875 / Buy on pullback to $860 support",
-      "position_size": "2-3% of portfolio (high conviction) / 1-2% of portfolio (medium) / 0.5-1% (speculative)",
-      "dollar_example": "$500 account: X shares | $1,000 account: X shares | $5,000 account: X shares",
-      "exit_target_1": "$920.00",
-      "exit_target_2": "$950.00",
-      "stop_loss": "$855.00",
-      "stop_reasoning": "One sentence explaining why this level invalidates the thesis.",
-      "upside_pct": "+5.1%",
-      "upside_pct_t2": "+8.6%",
-      "downside_risk": "-2.3%",
-      "risk_reward": "2.2:1",
-      "hold_days": "5-7 days",
-      "confidence": "74%",
-      "exit_plan": "Sell 50% at target 1, let rest run to target 2. Exit all if stop is hit.",
-      "risk_factors": "One sentence on what could go wrong.",
-      "robinhood_action": "Exact step-by-step: Search NVDA → Buy → Shares → Qty X → Limit $875 → Day order → Review → Submit"
+      "trade_type": "Swing Trade",
+      "current_price": "$1,087.00",
+      "thesis": "Two specific sentences: what is happening with this company RIGHT NOW and why the stock will go up. Reference actual recent news or earnings data.",
+      "fundamental_view": "One sentence on earnings growth rate, revenue trajectory, or valuation metric that supports buying now.",
+      "technical_setup": "One sentence: e.g. 'Holding above 50-day MA at $1,040; broke out of 3-week consolidation on above-average volume Tuesday.'",
+      "catalyst": "Specific upcoming catalyst with actual date if known, e.g. 'Earnings report expected June 5; consensus EPS $5.82, whisper number higher.'",
+      "buy_price": "$1,082.00",
+      "buy_by_date": "{t5}",
+      "buy_note": "Specific instruction: e.g. 'Set a limit buy order at $1,082. If stock opens above $1,090, wait for a pullback to $1,082 before entering.'",
+      "sell_price": "$1,145.00",
+      "sell_by_date": "{t10}",
+      "sell_note": "Specific exit instruction: e.g. 'Place a limit sell order at $1,145. If stock hits $1,120 and stalls, consider taking partial profits.'",
+      "stop_loss": "$1,048.00",
+      "stop_date": "{t5}",
+      "stop_note": "e.g. 'If stock closes below $1,048 (below 50-day MA), exit immediately regardless of news.'",
+      "upside_pct": "+5.8%",
+      "downside_risk": "-3.1%",
+      "risk_reward": "1.9:1",
+      "hold_days": "7-10 days",
+      "confidence": "68%",
+      "probability_of_target": "65%",
+      "position_size_pct": "3% of portfolio",
+      "dollar_examples": "$1,000 → 0 shares ($1,082 each) | $5,000 → 4 shares | $10,000 → 9 shares",
+      "exit_plan": "Sell 50% at $1,145. Move stop up to $1,100 on remainder. Sell balance at $1,180 or stop.",
+      "risk_factors": "Specific risk: e.g. 'Broader semiconductor sector selloff if SMCI earnings disappoint. Also watch for any China export restriction news.'",
+      "robinhood_steps": "1. Search NVDA 2. Tap Buy 3. Select Shares 4. Change to Limit Order 5. Set price $1,082 6. Enter quantity 7. Set as Good Till Cancelled 8. Review and Submit"
     }}
+  ],
+  "stocks_considered_but_skipped": [
+    {{"ticker": "TSLA", "reason": "Below 50-day MA, negative earnings revision trend. Risk/reward unfavorable."}}
   ],
   "market_watch": [
     {{
       "ticker": "SPY",
-      "note": "Watch this level — key support/resistance that matters today.",
-      "level": "$520"
+      "current_level": "$523",
+      "key_level": "$518",
+      "note": "Key support at $518 (50-day MA). Hold = bullish. Break = reduce exposure."
     }}
   ],
   "news_signals": [
-    {{"headline": "Concise headline under 12 words", "impact": "bullish", "ticker": "NVDA", "why": "One sentence on why this matters"}},
-    {{"headline": "Concise headline under 12 words", "impact": "bearish", "ticker": "SPY", "why": "One sentence on why this matters"}},
-    {{"headline": "Concise headline under 12 words", "impact": "bullish", "ticker": "TSLA", "why": "One sentence on why this matters"}}
+    {{
+      "headline": "Specific real headline under 12 words",
+      "impact": "bullish",
+      "ticker": "NVDA",
+      "why": "One sentence on direct price impact and magnitude."
+    }}
   ],
-  "daily_wisdom": "One sentence of hard-won investing wisdom relevant to today's market conditions.",
-  "risk_warning": "These are high-risk stock picks for informational purposes only. Not financial advice. Only invest money you can afford to lose."
-}}"""
-
+  "daily_wisdom": "A specific, actionable investing lesson relevant to today's market — not generic advice.",
+  "risk_warning": "These are stock picks for informational purposes only. Not financial advice. Buy shares only — no options, no margin."
+}}
 
 def generate_picks() -> dict:
-    print(f"Running expert analysis for {today}...")
+    print(f"Running disciplined stock analysis for {today_str}...")
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     response = client.messages.create(
         model="claude-sonnet-4-5",
         max_tokens=8000,
+        system="""You are a disciplined professional stock investor.
+You ONLY recommend buying and selling shares of stock.
+You NEVER mention options, calls, puts, contracts, strike prices, expiry dates, derivatives, futures, or margin.
+Every price you quote must be a realistic current market price.
+Every recommendation must have >50% probability of success.
+You respond ONLY with valid JSON.""",
         messages=[{"role": "user", "content": PROMPT}]
     )
 
     raw = response.content[0].text.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
+    # Find JSON object
+    start = raw.find('{')
+    end   = raw.rfind('}') + 1
+    if start != -1 and end > start:
+        raw = raw[start:end]
 
     data = json.loads(raw)
-    n = len(data.get("picks", []))
-    print(f"Generated {n} picks (conviction breakdown follows)")
-    for p in data.get("picks", []):
-        print(f"  #{p['rank']} {p['ticker']} — {p['conviction']} conviction — {p['upside_pct']} target — {p['hold_days']}")
+    picks = data.get("picks", [])
+    print(f"Generated {len(picks)} stock picks:")
+    for p in picks:
+        print(f"  #{p['rank']} {p['ticker']:6s} | Buy {p['buy_price']:>10} → Sell {p['sell_price']:>10} | Stop {p['stop_loss']:>10} | {p['upside_pct']} | {p['probability_of_target']} prob | {p['hold_days']}")
+    skipped = data.get("stocks_considered_but_skipped", [])
+    if skipped:
+        print(f"  Skipped {len(skipped)} stocks: {', '.join(s['ticker'] for s in skipped)}")
     return data
 
 
 def save_picks(data: dict):
     with open(OUTPUT_FILE, "w") as f:
         json.dump(data, f, indent=2)
-    print(f"Saved to {OUTPUT_FILE}")
+    print(f"Saved → {OUTPUT_FILE}")
 
 
 def send_pushover(data: dict):
     if not PUSHOVER_TOKEN or not PUSHOVER_USER:
-        print("Skipping Pushover (no credentials set)")
+        print("Pushover not configured — skipping")
         return
-
     picks = data.get("picks", [])
     if not picks:
         return
 
-    high   = [p for p in picks if p.get("conviction") == "high"]
-    medium = [p for p in picks if p.get("conviction") == "medium"]
-    spec   = [p for p in picks if p.get("conviction") == "speculative"]
-
+    hi = [p for p in picks if p.get("conviction") == "high"]
     lines = [
         f"Market: {data.get('market_summary', '')}",
-        f"{len(picks)} picks today ({len(high)} high / {len(medium)} medium / {len(spec)} speculative)\n"
+        f"{len(picks)} picks | {len(hi)} high conviction\n"
     ]
-
-    for p in picks[:5]:
-        icon = "🟢" if p.get("conviction") == "high" else "🟡" if p.get("conviction") == "medium" else "🔵"
+    for p in picks[:6]:
+        icon = {"high":"🟢","medium":"🔵","speculative":"🟣"}.get(p.get("conviction",""), "⚪")
         lines.append(
-            f"{icon} {p['ticker']} {p['upside_pct']} ({p['hold_days']})\n"
-            f"   Buy: {p['entry_price']} | Target: {p['exit_target_1']} | Stop: {p['stop_loss']}"
+            f"{icon} {p['ticker']} — Buy {p['buy_price']} → Sell {p['sell_price']}\n"
+            f"   Stop: {p['stop_loss']} | {p['upside_pct']} | ~{p['hold_days']} | {p.get('probability_of_target','?')} prob"
         )
+    if len(picks) > 6:
+        lines.append(f"\n...+{len(picks)-6} more on dashboard")
+    lines.append(f'\n"{data.get("daily_wisdom","")}"')
 
-    if len(picks) > 5:
-        lines.append(f"\n...and {len(picks)-5} more picks on dashboard")
-
-    lines.append(f"\n\"{data.get('daily_wisdom', '')}\"")
-
-    payload = {
-        "token":     PUSHOVER_TOKEN,
-        "user":      PUSHOVER_USER,
-        "title":     f"AlphaSignal — {len(picks)} Picks Ready ({today})",
-        "message":   "\n".join(lines),
-        "url":       DASHBOARD_URL,
-        "url_title": "View full analysis",
-        "priority":  0,
-        "sound":     "cashregister",
-    }
-
-    r = requests.post("https://api.pushover.net/1/messages.json", data=payload, timeout=10)
-    if r.status_code == 200:
-        print("Pushover sent")
-    else:
-        print(f"Pushover failed: {r.status_code} {r.text}")
+    r = requests.post("https://api.pushover.net/1/messages.json", data={
+        "token": PUSHOVER_TOKEN, "user": PUSHOVER_USER,
+        "title": f"AlphaSignal — {len(picks)} Picks | {today_str}",
+        "message": "\n".join(lines),
+        "url": DASHBOARD_URL, "url_title": "Full dashboard",
+        "priority": 0, "sound": "cashregister",
+    }, timeout=10)
+    print("Pushover sent" if r.status_code == 200 else f"Pushover failed: {r.status_code}")
 
 
 if __name__ == "__main__":

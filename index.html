@@ -3,829 +3,795 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlphaSignal — Expert Daily Analysis</title>
+<title>AlphaSignal — Daily Stock Picks</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
 <style>
 :root{
-  --bg:#0a0e13;--bg2:#111820;--bg3:#19222d;--bg4:#1e2a38;
-  --border:#1e2d3d;--border2:#2a3d52;--border3:#3a5068;
-  --text:#e8f0fe;--text2:#8fa8c0;--text3:#5a7a94;
-  --green:#00d4aa;--green2:#00a882;--green-bg:#001f1a;--green-bd:#003d32;
-  --red:#ff5f6d;--red2:#cc3340;--red-bg:#1f0810;--red-bd:#3d1020;
-  --amber:#ffb340;--amber2:#cc8a00;--amber-bg:#1f1400;--amber-bd:#3d2800;
-  --blue:#4da8ff;--blue2:#1a7acc;--blue-bg:#061428;--blue-bd:#0d2a4a;
-  --purple:#a78bfa;--purple-bg:#120a28;--purple-bd:#2a1a5a;
-  --teal:#22d3ee;--teal-bg:#001a20;--teal-bd:#003340;
-  --accent:#0d6efd;--gold:#ffd700;
-  --r:10px;--rs:6px;--rl:14px;
+  --bg:#080c10;--bg2:#0e1520;--bg3:#151f2e;--bg4:#1c2a3a;
+  --border:#1e2d3d;--border2:#2a3f56;--border3:#3a5570;
+  --text:#ddeeff;--text2:#7a99b8;--text3:#4a6a84;
+  --green:#00e5a0;--green2:#00b87a;--green-bg:#001a14;--green-bd:#003328;
+  --red:#ff4d6d;--red2:#cc2244;--red-bg:#1a060d;--red-bd:#3d0d20;
+  --amber:#ffb340;--amber-bg:#1a1000;--amber-bd:#3d2800;
+  --blue:#4db8ff;--blue-bg:#050f20;--blue-bd:#0d2840;
+  --purple:#b388ff;--purple-bg:#0f0820;--purple-bd:#251540;
+  --teal:#00d4cc;--teal-bg:#001a1a;--teal-bd:#003333;
+  --r:10px;--rs:7px;--rl:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px}
+html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);min-height:100vh}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
-code{background:var(--bg4);padding:1px 6px;border-radius:4px;font-size:12px;font-family:monospace}
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:6px;height:6px}
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border3);border-radius:3px}
 
-/* ── Header ── */
+/* header */
 header{
-  background:var(--bg2);border-bottom:1px solid var(--border);
+  background:rgba(14,21,32,.96);border-bottom:1px solid var(--border);
   padding:0 24px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:200;height:56px;
+  position:sticky;top:0;z-index:200;height:54px;backdrop-filter:blur(12px);
 }
-.logo{font-size:20px;font-weight:800;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
-.logo-icon{color:var(--green);font-size:22px}
-.logo-text{color:var(--text)}
-.logo-text span{color:var(--green)}
-.header-right{display:flex;align-items:center;gap:10px}
-.live-pill{
+.logo{font-size:19px;font-weight:900;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.logo-mark{color:var(--green);font-size:20px;line-height:1}
+.logo span{color:var(--green)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.ai-pill{
   display:flex;align-items:center;gap:5px;
   background:var(--green-bg);border:1px solid var(--green-bd);
-  color:var(--green);font-size:11px;font-weight:600;
+  color:var(--green);font-size:11px;font-weight:700;
   padding:3px 10px;border-radius:20px;letter-spacing:.3px
 }
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.updated-time{font-size:11px;color:var(--text3)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.upd{font-size:11px;color:var(--text3)}
 
-/* ── Container ── */
-.wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px}
+/* wrap */
+.wrap{max-width:1060px;margin:0 auto;padding:0 18px 80px}
 
-/* ── Analyst Brief ── */
-.brief{
-  background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);
-  border:1px solid var(--border2);border-radius:var(--rl);
-  padding:24px 28px;margin:24px 0 20px;position:relative;overflow:hidden;
+/* analyst card */
+.analyst-card{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);
+  padding:22px 26px;margin:20px 0 16px;position:relative;overflow:hidden;
 }
-.brief::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--green),var(--blue),var(--purple));
+.analyst-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue),var(--purple))}
+.analyst-hdr{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.analyst-av{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--green-bd);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0
 }
-.brief-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.brief-avatar{
-  width:40px;height:40px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));
-  border:1px solid var(--green-bd);display:flex;align-items:center;
-  justify-content:center;font-size:18px;flex-shrink:0
-}
-.brief-meta{flex:1}
-.brief-name{font-size:13px;font-weight:700;color:var(--text)}
-.brief-title{font-size:11px;color:var(--text3)}
-.brief-date{font-size:11px;color:var(--text3);margin-left:auto}
-.brief-text{font-size:14px;color:var(--text2);line-height:1.7;font-style:italic}
+.analyst-info .name{font-size:13px;font-weight:700}
+.analyst-info .title{font-size:11px;color:var(--text3)}
+.analyst-date{font-size:11px;color:var(--text3);margin-left:auto}
+.analyst-text{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:12px}
+.analyst-text b{color:var(--text)}
 .wisdom{
-  margin-top:14px;padding:10px 14px;
   background:var(--amber-bg);border-left:3px solid var(--amber);
-  border-radius:0 var(--rs) var(--rs) 0;
-  font-size:13px;color:var(--amber);font-style:italic
+  padding:8px 14px;border-radius:0 var(--rs) var(--rs) 0;
+  font-size:12px;color:var(--amber);font-style:italic
+}
+.key-risk{
+  background:var(--red-bg);border-left:3px solid var(--red);
+  padding:8px 14px;border-radius:0 var(--rs) var(--rs) 0;
+  font-size:12px;color:var(--red);margin-top:8px
 }
 
-/* ── Macro grid ── */
-.macro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
-.macro-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r);padding:14px 16px;
-}
-.macro-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
-.macro-value{font-size:15px;font-weight:700}
-.macro-sub{font-size:11px;color:var(--text3);margin-top:3px}
-.up{color:var(--green)}.down{color:var(--red)}.neutral{color:var(--amber)}.info{color:var(--blue)}
+/* metrics strip */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.mc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.mc-val{font-size:18px;font-weight:800}
+.mc-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.c-up{color:var(--green)}.c-dn{color:var(--red)}.c-neu{color:var(--amber)}.c-info{color:var(--blue)}
 
-/* ── Tabs ── */
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto}
+/* tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto;gap:0}
 .tab{
-  padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;
+  padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;
   color:var(--text3);background:none;border:none;
   border-bottom:2px solid transparent;margin-bottom:-1px;
-  font-family:inherit;white-space:nowrap;transition:color .15s
+  white-space:nowrap;font-family:inherit;transition:color .15s
 }
 .tab.on{color:var(--text);border-bottom-color:var(--green)}
 .tab:hover{color:var(--text2)}
-.tab-badge{
-  background:var(--bg4);color:var(--text3);
-  font-size:10px;font-weight:700;padding:1px 6px;
-  border-radius:10px;margin-left:5px
-}
-.tab.on .tab-badge{background:var(--green-bg);color:var(--green)}
+.tbadge{background:var(--bg3);color:var(--text3);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px}
+.tab.on .tbadge{background:var(--green-bg);color:var(--green)}
 .panel{display:none}.panel.on{display:block}
 
-/* ── Filter bar ── */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
-.filter-btn{
-  font-size:12px;padding:5px 12px;border-radius:20px;
-  border:1px solid var(--border2);background:var(--bg3);
-  color:var(--text2);cursor:pointer;font-family:inherit;transition:.15s
-}
-.filter-btn.on{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
-.filter-btn:hover{border-color:var(--border3)}
-.sort-select{
-  margin-left:auto;font-size:12px;background:var(--bg3);
-  border:1px solid var(--border2);color:var(--text2);
-  padding:5px 10px;border-radius:var(--rs);font-family:inherit;cursor:pointer
-}
+/* filter bar */
+.fbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.fb{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:inherit;transition:.15s;font-weight:500}
+.fb.on{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+.fb:hover{border-color:var(--border3)}
+.fsort{margin-left:auto;font-size:11px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 10px;border-radius:var(--rs);font-family:inherit;cursor:pointer}
 
-/* ── Pick cards ── */
-.picks-list{display:flex;flex-direction:column;gap:12px}
-.pick{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--rl);overflow:hidden;transition:border-color .2s
-}
+/* pick card */
+.picks{display:flex;flex-direction:column;gap:10px}
+.pick{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:border-color .2s}
 .pick:hover{border-color:var(--border3)}
-.pick.high  {border-left:3px solid var(--green)}
-.pick.medium{border-left:3px solid var(--blue)}
+.pick.high       {border-left:3px solid var(--green)}
+.pick.medium     {border-left:3px solid var(--blue)}
 .pick.speculative{border-left:3px solid var(--purple)}
 
-/* pick header row */
-.pick-top{
-  display:flex;align-items:center;padding:16px 20px 12px;
-  gap:12px;flex-wrap:wrap;cursor:pointer;user-select:none
-}
-.pick-rank{
-  width:30px;height:30px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;flex-shrink:0
-}
-.high   .pick-rank{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.medium .pick-rank{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
-.speculative .pick-rank{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
-.pick-id{flex:1;min-width:120px}
-.pick-ticker{font-size:20px;font-weight:800;letter-spacing:-.3px}
-.pick-name{font-size:12px;color:var(--text2);margin-top:1px}
-.pick-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
-.badge{
-  font-size:10px;font-weight:600;padding:2px 8px;
-  border-radius:12px;letter-spacing:.2px
-}
-.b-high   {background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.b-medium {background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
-.b-spec   {background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
-.b-swing  {background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-bd)}
-.b-position{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
-.b-special{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-.b-sector {background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
-.pick-prices{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.price-block{text-align:right}
-.price-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.price-val{font-size:17px;font-weight:700}
-.price-pct{font-size:12px;font-weight:600;margin-top:1px}
-.pick-chevron{font-size:18px;color:var(--text3);transition:transform .2s;flex-shrink:0}
-.pick.open .pick-chevron{transform:rotate(180deg)}
+/* pick summary row (always visible) */
+.psum{display:flex;align-items:center;padding:14px 18px 12px;gap:12px;cursor:pointer;user-select:none;flex-wrap:wrap}
+.prank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.high        .prank{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.medium      .prank{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.speculative .prank{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+.pid{flex:1;min-width:100px}
+.pticker{font-size:18px;font-weight:900;letter-spacing:-.3px}
+.pname{font-size:11px;color:var(--text2);margin-top:1px}
+.pbadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.bdg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.3px}
+.bdg-h{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.bdg-m{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.bdg-s{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+.bdg-sw{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-bd)}
+.bdg-pos{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.bdg-sec{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
 
-/* pick body (expandable) */
-.pick-body{display:none;padding:0 20px 18px}
-.pick.open .pick-body{display:block}
-.pick-thesis{
-  font-size:14px;color:var(--text);line-height:1.7;
+/* price columns in summary */
+.pcols{display:flex;gap:14px;flex-wrap:wrap}
+.pcol{text-align:center;min-width:70px}
+.pcol-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.pcol-price{font-size:15px;font-weight:800}
+.pcol-pct{font-size:10px;font-weight:600;margin-top:1px}
+.pcol-date{font-size:9px;color:var(--text3);margin-top:1px}
+.pchev{font-size:16px;color:var(--text3);transition:transform .2s;flex-shrink:0;margin-left:auto}
+.pick.open .pchev{transform:rotate(180deg)}
+
+/* prob bar */
+.prob-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:6px}
+.prob-bar-bg{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.prob-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
+.prob-txt{font-size:10px;font-weight:700;min-width:32px;text-align:right}
+
+/* pick body */
+.pbody{display:none;padding:0 18px 16px}
+.pick.open .pbody{display:block}
+
+.thesis-box{
+  font-size:13px;color:var(--text);line-height:1.7;
   padding:12px 14px;background:var(--bg3);border-radius:var(--rs);
-  border-left:3px solid var(--border3);margin-bottom:14px
+  border-left:3px solid var(--border3);margin-bottom:12px
 }
-.pick-thesis strong{color:var(--green)}
+.thesis-box .cat{font-weight:700;color:var(--green)}
+.thesis-box .sub{color:var(--text2);font-size:12px;margin-top:6px}
 
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-@media(max-width:600px){.detail-grid{grid-template-columns:1fr}}
-.detail-box{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--rs);padding:12px 14px
+/* trade plan table */
+.trade-plan{
+  width:100%;border-collapse:collapse;margin-bottom:12px;
+  background:var(--bg3);border-radius:var(--rs);overflow:hidden;
+  border:1px solid var(--border)
 }
-.detail-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.detail-val{font-size:13px;color:var(--text);line-height:1.5}
-.detail-val.green{color:var(--green)}
-.detail-val.red{color:var(--red)}
-.detail-val.amber{color:var(--amber)}
-.detail-val.blue{color:var(--blue)}
+.trade-plan th{
+  font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.5px;padding:8px 12px;text-align:left;
+  border-bottom:1px solid var(--border);background:var(--bg4)
+}
+.trade-plan td{font-size:13px;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.trade-plan tr:last-child td{border-bottom:none}
+.trade-plan td:first-child{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;width:90px}
 
-.levels-row{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  margin-bottom:14px
-}
-@media(max-width:560px){.levels-row{grid-template-columns:repeat(2,1fr)}}
-.level-box{
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--rs);padding:10px 12px;text-align:center
-}
-.level-label{font-size:10px;color:var(--text3);margin-bottom:4px}
-.level-price{font-size:16px;font-weight:700}
-.level-pct{font-size:11px;margin-top:2px}
+/* detail grid */
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+@media(max-width:560px){.dgrid{grid-template-columns:1fr}}
+.dbox{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px}
+.dbox-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.dbox-val{font-size:12px;color:var(--text);line-height:1.5}
+.dbox-val.up{color:var(--green)}.dbox-val.dn{color:var(--red)}.dbox-val.am{color:var(--amber)}.dbox-val.bl{color:var(--blue)}
 
-.action-strip{display:flex;gap:8px;flex-wrap:wrap}
-.btn{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:12px;font-weight:600;padding:7px 16px;
+/* robinhood steps */
+.rh-box{
+  background:#001a04;border:1px solid #00c80540;
+  border-radius:var(--rs);padding:12px 14px;margin-bottom:12px
+}
+.rh-box .rh-title{font-size:11px;font-weight:700;color:#00c805;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.rh-box .rh-steps{font-size:12px;color:#b3ffb8;line-height:1.9;font-family:monospace}
+
+/* action buttons */
+.abtn-row{display:flex;gap:7px;flex-wrap:wrap}
+.abtn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;padding:6px 14px;
   border-radius:var(--rs);border:1px solid;cursor:pointer;
-  text-decoration:none;font-family:inherit;transition:.15s
+  text-decoration:none;font-family:inherit;transition:.15s;letter-spacing:.2px
 }
-.btn:hover{opacity:.8;text-decoration:none}
-.btn:active{transform:scale(.97)}
-.btn-green{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
-.btn-blue {background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
-.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2)}
-.btn-rh   {background:#00c805;color:#000;border-color:#00c805;font-weight:800}
+.abtn:hover{opacity:.8;text-decoration:none}
+.abtn:active{transform:scale(.97)}
+.abtn-rh{background:#00c805;color:#000;border-color:#00c805}
+.abtn-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
+.abtn-ghost{background:transparent;color:var(--text2);border-color:var(--border2)}
 
-/* ── Metrics ── */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
-.metric-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.metric-value{font-size:21px;font-weight:800}
-.metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
-
-/* ── News ── */
-.news-item{
-  display:flex;gap:12px;padding:14px 0;
-  border-bottom:1px solid var(--border)
+/* skipped stocks */
+.skipped-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.skip-item{
+  display:flex;gap:10px;padding:8px 12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);
+  font-size:12px;align-items:flex-start
 }
+.skip-ticker{font-weight:800;color:var(--red);min-width:50px}
+.skip-reason{color:var(--text2)}
+
+/* news */
+.news-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
 .news-item:last-child{border-bottom:none}
-.news-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.nd-bullish{background:var(--green)}
-.nd-bearish{background:var(--red)}
-.nd-neutral{background:var(--text3)}
-.news-body{flex:1}
-.news-hl{font-size:14px;color:var(--text);line-height:1.4;font-weight:500}
-.news-why{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.4}
-.news-meta{font-size:11px;color:var(--text3);margin-top:4px}
-.news-ticker{color:var(--blue);font-weight:700}
-.news-impact{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px}
-.ni-bullish{background:var(--green-bg);color:var(--green)}
-.ni-bearish{background:var(--red-bg);color:var(--red)}
-.ni-neutral{background:var(--bg4);color:var(--text3)}
+.ndot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.nd-bull{background:var(--green)}.nd-bear{background:var(--red)}.nd-neu{background:var(--text3)}
+.nbody .nhl{font-size:13px;color:var(--text);font-weight:500;line-height:1.4}
+.nbody .nwhy{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.4}
+.nbody .nmeta{font-size:11px;color:var(--text3);margin-top:3px}
+.nticker{color:var(--blue);font-weight:700}
+.nimp{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.ni-bull{background:var(--green-bg);color:var(--green)}
+.ni-bear{background:var(--red-bg);color:var(--red)}
+.ni-neu{background:var(--bg4);color:var(--text3)}
 
-/* ── Market watch ── */
-.watch-item{
-  display:flex;align-items:center;gap:12px;padding:12px 14px;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--rs);margin-bottom:8px
-}
-.watch-ticker{font-size:15px;font-weight:800;min-width:50px}
-.watch-level{font-size:13px;color:var(--amber);font-weight:600;min-width:60px}
-.watch-note{font-size:13px;color:var(--text2);flex:1}
+/* market watch */
+.witem{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:7px}
+.wticker{font-size:14px;font-weight:800;min-width:48px}
+.wlevel{font-size:13px;color:var(--amber);font-weight:700;min-width:58px}
+.wnote{font-size:12px;color:var(--text2);flex:1}
 
-/* ── History ── */
-.hist-table{width:100%;border-collapse:collapse;font-size:13px}
-.hist-table th{
-  text-align:left;padding:8px 10px;
-  font-size:10px;font-weight:700;color:var(--text3);
-  text-transform:uppercase;letter-spacing:.5px;
-  border-bottom:1px solid var(--border)
+/* alerts */
+.alert-row{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);
+  padding:12px 14px;margin-bottom:7px
 }
-.hist-table td{padding:10px 10px;border-bottom:1px solid var(--border);color:var(--text)}
-.hist-table tr:last-child td{border-bottom:none}
-.hist-table tr:hover td{background:var(--bg3)}
+.alert-id{flex:1;min-width:120px}
+.alert-ticker{font-size:15px;font-weight:800}
+.alert-name{font-size:11px;color:var(--text3);margin-top:1px}
+.alert-prices{display:flex;gap:14px}
+.aprice{text-align:center}
+.aprice-lbl{font-size:9px;color:var(--text3);text-transform:uppercase}
+.aprice-val{font-size:14px;font-weight:800}
+.aprice-date{font-size:9px;color:var(--text3);margin-top:1px}
 
-/* ── Empty / loading ── */
-.empty{text-align:center;padding:48px 20px;color:var(--text3)}
-.spinner{
-  width:32px;height:32px;border:2px solid var(--border2);
-  border-top-color:var(--green);border-radius:50%;
-  animation:spin .7s linear infinite;margin:0 auto 16px
-}
+/* history */
+.htable{width:100%;border-collapse:collapse;font-size:12px}
+.htable th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.htable td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.htable tr:last-child td{border-bottom:none}
+.htable tr:hover td{background:var(--bg3)}
+
+/* empty / spinner */
+.empty{text-align:center;padding:44px 20px;color:var(--text3)}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.etitle{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.sep{height:1px;background:var(--border);margin:18px 0}
+.shd{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
 
-/* ── Separator ── */
-.sep{height:1px;background:var(--border);margin:20px 0}
-.section-hd{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
-
-/* ── Footer ── */
-footer{
-  border-top:1px solid var(--border);padding:20px;
-  font-size:11px;color:var(--text3);line-height:1.8;margin-top:40px
-}
-.footer-wrap{max-width:1100px;margin:0 auto;padding:0 20px}
-
+footer{border-top:1px solid var(--border);padding:18px 24px;font-size:11px;color:var(--text3);line-height:1.8;margin-top:40px;max-width:1060px;margin-left:auto;margin-right:auto}
+footer a{color:var(--blue)}
 @media(max-width:600px){
-  .brief{padding:16px}
-  .pick-top{padding:12px 14px 10px}
-  .pick-body{padding:0 14px 14px}
+  .analyst-card{padding:14px}
+  .psum{padding:12px 14px 10px}
+  .pbody{padding:0 14px 14px}
+  .pcols{gap:10px}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-icon">▲</span>
-    <div class="logo-text">Alpha<span>Signal</span></div>
-  </div>
-  <div class="header-right">
-    <div class="live-pill"><div class="live-dot"></div>Expert AI Analysis</div>
-    <span class="updated-time" id="upd-time"></span>
+  <div class="logo"><span class="logo-mark">▲</span>Alpha<span>Signal</span></div>
+  <div class="hdr-right">
+    <div class="ai-pill"><div class="dot"></div>Expert AI · Shares Only</div>
+    <span class="upd" id="upd"></span>
   </div>
 </header>
 
 <div class="wrap">
 
-  <!-- ANALYST BRIEF -->
-  <div class="brief" id="brief-section">
-    <div class="brief-header">
-      <div class="brief-avatar">👤</div>
-      <div class="brief-meta">
-        <div class="brief-name">AlphaSignal Analyst</div>
-        <div class="brief-title">30-Year Market Veteran · Macro + Technical + Fundamental</div>
+  <!-- ANALYST CARD -->
+  <div class="analyst-card">
+    <div class="analyst-hdr">
+      <div class="analyst-av">👤</div>
+      <div class="analyst-info">
+        <div class="name">AlphaSignal Analyst</div>
+        <div class="title">30-Year Market Veteran · Long-Only Stock Investor</div>
       </div>
-      <div class="brief-date" id="brief-date"></div>
+      <div class="analyst-date" id="adate"></div>
     </div>
-    <div class="brief-text" id="analyst-note">Loading today's market analysis...</div>
-    <div class="wisdom" id="daily-wisdom"></div>
+    <div class="analyst-text" id="analyst-note">Loading today's market analysis...</div>
+    <div class="wisdom" id="wisdom"></div>
+    <div class="key-risk" id="key-risk"></div>
   </div>
 
-  <!-- MACRO STRIP -->
-  <div class="metrics" id="macro-metrics">
-    <div class="metric"><div class="metric-label">Market trend</div><div class="metric-value neutral" id="m-trend">—</div><div class="metric-sub" id="m-sentiment">loading</div></div>
-    <div class="metric"><div class="metric-label">Volatility</div><div class="metric-value neutral" id="m-vol">—</div><div class="metric-sub">VIX environment</div></div>
-    <div class="metric"><div class="metric-label">Fed stance</div><div class="metric-value neutral" id="m-fed">—</div><div class="metric-sub">Monetary policy</div></div>
-    <div class="metric"><div class="metric-label">Picks today</div><div class="metric-value up" id="m-count">—</div><div class="metric-sub" id="m-breakdown">loading</div></div>
-    <div class="metric"><div class="metric-label">Avg upside</div><div class="metric-value up" id="m-upside">—</div><div class="metric-sub">To target 1</div></div>
-    <div class="metric"><div class="metric-label">Avg R/R ratio</div><div class="metric-value info" id="m-rr">—</div><div class="metric-sub">Risk/reward</div></div>
+  <!-- METRICS -->
+  <div class="metrics" id="metrics">
+    <div class="mc"><div class="mc-lbl">Market trend</div><div class="mc-val c-neu" id="m-trend">—</div><div class="mc-sub" id="m-sent">loading</div></div>
+    <div class="mc"><div class="mc-lbl">Volatility</div><div class="mc-val c-neu" id="m-vol">—</div><div class="mc-sub">VIX env.</div></div>
+    <div class="mc"><div class="mc-lbl">Fed stance</div><div class="mc-val c-neu" id="m-fed">—</div><div class="mc-sub">Policy posture</div></div>
+    <div class="mc"><div class="mc-lbl">Picks today</div><div class="mc-val c-up" id="m-cnt">—</div><div class="mc-sub" id="m-brk">H/M/S</div></div>
+    <div class="mc"><div class="mc-lbl">Avg upside</div><div class="mc-val c-up" id="m-up">—</div><div class="mc-sub">To target 1</div></div>
+    <div class="mc"><div class="mc-lbl">Avg probability</div><div class="mc-val c-info" id="m-prob">—</div><div class="mc-sub">Of hitting target</div></div>
   </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab on" onclick="tab('picks',this)">Picks <span class="tab-badge" id="tb-picks">—</span></button>
-    <button class="tab" onclick="tab('news',this)">News & Signals <span class="tab-badge" id="tb-news">—</span></button>
-    <button class="tab" onclick="tab('watch',this)">Market Watch</button>
-    <button class="tab" onclick="tab('alerts',this)">Robinhood Alerts</button>
-    <button class="tab" onclick="tab('history',this)">History</button>
+    <button class="tab on"  onclick="switchTab('picks',this)">Picks <span class="tbadge" id="tb-p">—</span></button>
+    <button class="tab"     onclick="switchTab('news',this)">News <span class="tbadge" id="tb-n">—</span></button>
+    <button class="tab"     onclick="switchTab('watch',this)">Market Watch</button>
+    <button class="tab"     onclick="switchTab('alerts',this)">Robinhood Alerts</button>
+    <button class="tab"     onclick="switchTab('history',this)">History</button>
   </div>
 
-  <!-- PANEL: PICKS -->
+  <!-- PICKS PANEL -->
   <div id="panel-picks" class="panel on">
-    <div class="filter-bar">
-      <button class="filter-btn on" onclick="filter('all',this)">All</button>
-      <button class="filter-btn" onclick="filter('high',this)">🟢 High conviction</button>
-      <button class="filter-btn" onclick="filter('medium',this)">🔵 Medium</button>
-      <button class="filter-btn" onclick="filter('speculative',this)">🟣 Speculative</button>
-      <button class="filter-btn" onclick="filter('Swing Trade',this)">Swing</button>
-      <button class="filter-btn" onclick="filter('Position Trade',this)">Position</button>
-      <select class="sort-select" onchange="sortPicks(this.value)">
+    <div class="fbar">
+      <button class="fb on" onclick="doFilter('all',this)">All</button>
+      <button class="fb" onclick="doFilter('high',this)">🟢 High conviction</button>
+      <button class="fb" onclick="doFilter('medium',this)">🔵 Medium</button>
+      <button class="fb" onclick="doFilter('speculative',this)">🟣 Speculative</button>
+      <button class="fb" onclick="doFilter('Swing Trade',this)">Swing</button>
+      <button class="fb" onclick="doFilter('Position Trade',this)">Position</button>
+      <select class="fsort" onchange="doSort(this.value)">
         <option value="rank">Sort: Rank</option>
         <option value="upside">Sort: Upside %</option>
+        <option value="prob">Sort: Probability</option>
         <option value="rr">Sort: Risk/Reward</option>
-        <option value="confidence">Sort: Confidence</option>
         <option value="hold">Sort: Hold days</option>
       </select>
     </div>
-    <div id="risk-key" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:11px;color:var(--text3)">
-      <span>🟢 High conviction = larger position size</span>
-      <span>🔵 Medium = standard size</span>
-      <span>🟣 Speculative = small size</span>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">
+      <span>🟢 High conviction = 3-4% of portfolio</span>
+      <span>🔵 Medium = 1-2% of portfolio</span>
+      <span>🟣 Speculative = 0.5-1% of portfolio</span>
+      <span style="color:var(--green)">All picks: BUY SHARES ONLY. No options.</span>
     </div>
-    <div class="picks-list" id="picks-list">
-      <div class="empty"><div class="spinner"></div><div class="empty-title">Loading picks...</div></div>
+    <div class="picks" id="picks-list">
+      <div class="empty"><div class="spinner"></div><div class="etitle">Loading picks...</div></div>
+    </div>
+
+    <div id="skipped-section" style="display:none;margin-top:20px">
+      <div class="sep"></div>
+      <div class="shd">Stocks considered but not recommended today</div>
+      <div class="skipped-list" id="skipped-list"></div>
     </div>
   </div>
 
-  <!-- PANEL: NEWS -->
+  <!-- NEWS PANEL -->
   <div id="panel-news" class="panel">
-    <div class="section-hd">Key catalysts & signals driving the market today</div>
+    <div class="shd">Market-moving catalysts & signals</div>
     <div id="news-list"><div class="empty"><p>Loading...</p></div></div>
   </div>
 
-  <!-- PANEL: MARKET WATCH -->
+  <!-- WATCH PANEL -->
   <div id="panel-watch" class="panel">
-    <div class="section-hd">Key levels to watch today</div>
-    <div id="watch-list"><div class="empty"><p>Loading...</p></div></div>
+    <div class="shd">Key levels to monitor today</div>
+    <div id="watch-list"></div>
     <div class="sep"></div>
-    <div class="section-hd">Sector leaders & laggards</div>
+    <div class="shd">Sector rotation</div>
     <div id="sector-list"></div>
   </div>
 
-  <!-- PANEL: ALERTS -->
+  <!-- ALERTS PANEL -->
   <div id="panel-alerts" class="panel">
-    <div class="section-hd">Set these price alerts in Robinhood — takes 2 minutes</div>
+    <div class="shd">Set these 3 alerts per pick in Robinhood (buy alert + sell alert + stop alert)</div>
     <div id="alerts-list"></div>
     <div class="sep"></div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px">
-      <div class="section-hd" style="margin-bottom:14px">How to set a price alert in Robinhood</div>
-      <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text2)">
-        <div style="display:flex;gap:10px"><span style="background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span><span>Open Robinhood → tap the Search icon → type the ticker</span></div>
-        <div style="display:flex;gap:10px"><span style="background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span><span>Tap the 🔔 bell icon in the top-right corner of the stock page</span></div>
-        <div style="display:flex;gap:10px"><span style="background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span><span>Set <strong style="color:var(--green)">Price alert at entry price</strong> (triggers your buy) and <strong style="color:var(--amber)">Price alert at exit target</strong> (triggers your sell)</span></div>
-        <div style="display:flex;gap:10px"><span style="background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span><span>Also set a <strong style="color:var(--red)">stop-loss alert</strong> — if the stock drops to this price, sell immediately</span></div>
-        <div style="display:flex;gap:10px"><span style="background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</span><span>Repeat for each pick every morning after picks refresh at 9:15 AM ET</span></div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+      <div class="shd" style="margin-bottom:12px">How to set a price alert in Robinhood</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:12px;color:var(--text2)">
+        <div style="display:flex;gap:9px;align-items:flex-start"><span style="background:#0d6efd;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">1</span><span>Open Robinhood → Search icon → type the ticker (e.g. NVDA)</span></div>
+        <div style="display:flex;gap:9px;align-items:flex-start"><span style="background:#0d6efd;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">2</span><span>Tap the 🔔 bell icon (top-right of the stock page)</span></div>
+        <div style="display:flex;gap:9px;align-items:flex-start"><span style="background:#0d6efd;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">3</span><span>Set <b style="color:var(--green)">Alert 1 at BUY price</b> — when triggered, place your limit buy order</span></div>
+        <div style="display:flex;gap:9px;align-items:flex-start"><span style="background:#0d6efd;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">4</span><span>Set <b style="color:var(--amber)">Alert 2 at SELL price</b> — when triggered, place your limit sell order to lock in profit</span></div>
+        <div style="display:flex;gap:9px;align-items:flex-start"><span style="background:#0d6efd;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px">5</span><span>Set <b style="color:var(--red)">Alert 3 at STOP LOSS</b> — if triggered, sell immediately to protect capital</span></div>
       </div>
     </div>
   </div>
 
-  <!-- PANEL: HISTORY -->
+  <!-- HISTORY PANEL -->
   <div id="panel-history" class="panel">
-    <div class="section-hd">Your pick history (stored locally)</div>
-    <div id="history-body"><div class="empty"><div class="empty-icon" style="font-size:36px;margin-bottom:10px">📋</div><p>No history yet. History builds automatically each day.</p></div></div>
-    <div style="margin-top:14px">
-      <button class="btn btn-ghost" onclick="clearHistory()" style="font-size:11px">Clear history</button>
-    </div>
+    <div class="shd">Pick history (stored on this device)</div>
+    <div id="history-body"><div class="empty"><p>History builds automatically each day.</p></div></div>
+    <div style="margin-top:12px"><button class="abtn abtn-ghost" onclick="clearHist()" style="font-size:11px">Clear history</button></div>
   </div>
 
-</div><!-- /wrap -->
+</div>
 
 <footer>
-  <div class="footer-wrap">
-    <strong>⚠️ Disclaimer:</strong> AlphaSignal is an AI-powered research tool and does NOT constitute financial advice.
-    All picks are for informational and educational purposes only. Stock investing involves significant risk — you may lose your entire investment.
-    Past picks are not indicative of future results. Always do your own research and consult a licensed financial advisor before investing.<br>
-    Built by <a href="https://github.com/Sspottabathula" target="_blank">Sspottabathula</a> ·
-    Powered by <a href="https://anthropic.com" target="_blank">Anthropic Claude</a> ·
-    Hosted free on <a href="https://pages.github.com" target="_blank">GitHub Pages</a> ·
-    Auto-refreshes Mon–Fri at 9:15 AM ET
-  </div>
+  <strong>⚠️ Disclaimer:</strong> AlphaSignal is an AI research tool for informational purposes only. NOT financial advice.
+  These are stock share picks only — no options, no margin, no derivatives.
+  Investing involves risk; you may lose money. Past picks do not guarantee future results.
+  Always do your own research. · Built by <a href="https://github.com/Sspottabathula" target="_blank">Sspottabathula</a> ·
+  Powered by <a href="https://anthropic.com" target="_blank">Anthropic Claude</a> · Auto-updates Mon–Fri 9:15 AM ET
 </footer>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────────
-let ALL_PICKS = [];
-let ACTIVE_FILTER = 'all';
+let ALL=[],FILT='all';
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function tab(id, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
-  document.getElementById('panel-' + id).classList.add('on');
-  if (btn) btn.classList.add('on');
+// ── tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
 }
 
-// ── Filter ────────────────────────────────────────────────────────────────────
-function filter(val, btn) {
-  ACTIVE_FILTER = val;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
-  if (btn) btn.classList.add('on');
-  renderPicksList(ALL_PICKS);
+// ── filter / sort ─────────────────────────────────────────────────────────────
+function doFilter(v,btn){
+  FILT=v;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderList(ALL);
 }
-
-// ── Sort ──────────────────────────────────────────────────────────────────────
-function sortPicks(by) {
-  const sorted = [...ALL_PICKS].sort((a, b) => {
-    if (by === 'upside') return pct(b.upside_pct) - pct(a.upside_pct);
-    if (by === 'rr')     return rr(b.risk_reward) - rr(a.risk_reward);
-    if (by === 'confidence') return pct(b.confidence) - pct(a.confidence);
-    if (by === 'hold')   return minDays(a.hold_days) - minDays(b.hold_days);
-    return a.rank - b.rank;
+function doSort(by){
+  const s=[...ALL].sort((a,b)=>{
+    if(by==='upside')  return num(b.upside_pct)-num(a.upside_pct);
+    if(by==='prob')    return num(b.probability_of_target)-num(a.probability_of_target);
+    if(by==='rr')      return rrNum(b.risk_reward)-rrNum(a.risk_reward);
+    if(by==='hold')    return minD(a.hold_days)-minD(b.hold_days);
+    return a.rank-b.rank;
   });
-  renderPicksList(sorted);
+  renderList(s);
 }
-const pct = s => parseFloat((s || '0').replace(/[+%]/g, ''));
-const rr  = s => parseFloat((s || '0').split(':')[0]);
-const minDays = s => parseInt((s || '0').split(/[-–]/)[0]);
+const num=s=>parseFloat((s||'0').replace(/[+%$,]/g,'').trim());
+const rrNum=s=>parseFloat((s||'0').split(':')[0]);
+const minD=s=>parseInt((s||'0').split(/[-–]/)[0]);
 
-// ── Expand/collapse ────────────────────────────────────────────────────────────
-function toggle(el) {
-  el.closest('.pick').classList.toggle('open');
+// ── toggle expand ─────────────────────────────────────────────────────────────
+function tog(el){el.closest('.pick').classList.toggle('open')}
+
+// ── probability bar ───────────────────────────────────────────────────────────
+function probBar(pStr,conv){
+  const p=num(pStr||'50');
+  const col=p>=65?'var(--green)':p>=50?'var(--amber)':'var(--red)';
+  return `<div class="prob-bar-wrap">
+    <div style="font-size:10px;color:var(--text3);white-space:nowrap">Hit probability</div>
+    <div class="prob-bar-bg"><div class="prob-bar-fill" style="width:${p}%;background:${col}"></div></div>
+    <div class="prob-txt" style="color:${col}">${p}%</div>
+  </div>`;
 }
 
-// ── Conviction badge ──────────────────────────────────────────────────────────
-function convBadge(c) {
-  if (c === 'high')        return '<span class="badge b-high">HIGH CONVICTION</span>';
-  if (c === 'medium')      return '<span class="badge b-medium">MEDIUM</span>';
-  if (c === 'speculative') return '<span class="badge b-spec">SPECULATIVE</span>';
+// ── conviction badge ──────────────────────────────────────────────────────────
+function cBadge(c){
+  if(c==='high')        return '<span class="bdg bdg-h">HIGH</span>';
+  if(c==='medium')      return '<span class="bdg bdg-m">MEDIUM</span>';
+  if(c==='speculative') return '<span class="bdg bdg-s">SPEC</span>';
   return '';
 }
-function tradeBadge(t) {
-  if (!t) return '';
-  if (t.includes('Swing'))    return '<span class="badge b-swing">SWING</span>';
-  if (t.includes('Position')) return '<span class="badge b-position">POSITION</span>';
-  if (t.includes('Special'))  return '<span class="badge b-special">SPECIAL SIT.</span>';
-  return '<span class="badge b-sector">'+t.toUpperCase()+'</span>';
+function tBadge(t){
+  if(!t)return'';
+  if(t.includes('Swing'))   return '<span class="bdg bdg-sw">SWING</span>';
+  if(t.includes('Position'))return '<span class="bdg bdg-pos">POSITION</span>';
+  if(t.includes('Special')) return '<span class="bdg bdg-sec">SPECIAL</span>';
+  return `<span class="bdg bdg-sec">${t.toUpperCase()}</span>`;
 }
 
-// ── Render picks list ──────────────────────────────────────────────────────────
-function renderPicksList(picks) {
-  const filtered = ACTIVE_FILTER === 'all'
-    ? picks
-    : picks.filter(p =>
-        p.conviction === ACTIVE_FILTER ||
-        (p.trade_type || '').includes(ACTIVE_FILTER)
-      );
+// ── render picks list ─────────────────────────────────────────────────────────
+function renderList(picks){
+  const f=FILT==='all'?picks:picks.filter(p=>p.conviction===FILT||(p.trade_type||'').includes(FILT));
+  if(!f.length){document.getElementById('picks-list').innerHTML='<div class="empty"><p>No picks match this filter.</p></div>';return;}
 
-  if (!filtered.length) {
-    document.getElementById('picks-list').innerHTML =
-      '<div class="empty"><p>No picks match this filter.</p></div>';
-    return;
-  }
-
-  document.getElementById('picks-list').innerHTML = filtered.map((p, i) => `
-    <div class="pick ${p.conviction || 'medium'}" id="pick-${p.ticker}">
-      <div class="pick-top" onclick="toggle(this)">
-        <div class="pick-rank">#${p.rank}</div>
-        <div class="pick-id">
-          <div class="pick-ticker">${p.ticker}</div>
-          <div class="pick-name">${p.name} · ${p.sector}</div>
-          <div class="pick-badges">
-            ${convBadge(p.conviction)}
-            ${tradeBadge(p.trade_type)}
-            ${p.industry ? `<span class="badge b-sector">${p.industry}</span>` : ''}
+  document.getElementById('picks-list').innerHTML=f.map((p,i)=>{
+    const prob=num(p.probability_of_target||'0');
+    const pcol=prob>=65?'c-up':prob>=50?'c-neu':'c-dn';
+    return `
+    <div class="pick ${p.conviction||'medium'}" id="pk-${p.ticker}">
+      <div class="psum" onclick="tog(this)">
+        <div class="prank">#${p.rank}</div>
+        <div class="pid">
+          <div class="pticker">${p.ticker}</div>
+          <div class="pname">${p.name}</div>
+          <div class="pbadges">${cBadge(p.conviction)}${tBadge(p.trade_type)}${p.sector?`<span class="bdg bdg-sec">${p.sector}</span>`:''}</div>
+        </div>
+        <div class="pcols">
+          <div class="pcol">
+            <div class="pcol-lbl">Current</div>
+            <div class="pcol-price c-info">${p.current_price||p.entry_price}</div>
+          </div>
+          <div class="pcol">
+            <div class="pcol-lbl">Buy at</div>
+            <div class="pcol-price c-up">${p.buy_price}</div>
+            <div class="pcol-date">by ${shortDate(p.buy_by_date)}</div>
+          </div>
+          <div class="pcol">
+            <div class="pcol-lbl">Sell at</div>
+            <div class="pcol-price c-neu">${p.sell_price}</div>
+            <div class="pcol-date">by ${shortDate(p.sell_by_date)}</div>
+          </div>
+          <div class="pcol">
+            <div class="pcol-lbl">Stop</div>
+            <div class="pcol-price c-dn">${p.stop_loss}</div>
+          </div>
+          <div class="pcol">
+            <div class="pcol-lbl">Upside</div>
+            <div class="pcol-price c-up">${p.upside_pct}</div>
+            <div class="pcol-date">${p.risk_reward} R/R</div>
+          </div>
+          <div class="pcol">
+            <div class="pcol-lbl">Prob.</div>
+            <div class="pcol-price ${pcol}">${p.probability_of_target||'?'}</div>
+            <div class="pcol-date">${p.hold_days}</div>
           </div>
         </div>
-        <div class="pick-prices">
-          <div class="price-block">
-            <div class="price-label">Entry</div>
-            <div class="price-val">${p.entry_price}</div>
-          </div>
-          <div class="price-block">
-            <div class="price-label">Target 1</div>
-            <div class="price-val up">${p.exit_target_1}</div>
-            <div class="price-pct up">${p.upside_pct}</div>
-          </div>
-          <div class="price-block">
-            <div class="price-label">Stop</div>
-            <div class="price-val down">${p.stop_loss}</div>
-            <div class="price-pct down">${p.downside_risk || ''}</div>
-          </div>
-          <div class="price-block">
-            <div class="price-label">R/R</div>
-            <div class="price-val info">${p.risk_reward}</div>
-            <div class="price-pct neutral">${p.hold_days}</div>
-          </div>
-        </div>
-        <div class="pick-chevron">▾</div>
+        <div class="pchev">▾</div>
       </div>
-      <div class="pick-body">
-        <div class="pick-thesis">
-          <strong>Thesis:</strong> ${p.thesis}<br>
-          ${p.fundamental_view ? `<span style="color:var(--text2);font-size:13px">📊 ${p.fundamental_view}</span>` : ''}
+
+      <div class="pbody">
+        ${probBar(p.probability_of_target, p.conviction)}
+        <div style="margin-bottom:10px"></div>
+
+        <div class="thesis-box">
+          <span class="cat">Investment thesis: </span>${p.thesis||''}
+          ${p.fundamental_view?`<div class="sub">📊 Fundamentals: ${p.fundamental_view}</div>`:''}
+          ${p.technical_setup?`<div class="sub">📈 Chart: ${p.technical_setup}</div>`:''}
         </div>
 
-        <div class="detail-grid">
-          <div class="detail-box">
-            <div class="detail-label">Technical setup</div>
-            <div class="detail-val">${p.technical_setup || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">Catalyst & timing</div>
-            <div class="detail-val amber">${p.catalyst || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">How to buy</div>
-            <div class="detail-val green">${p.entry_strategy || p.how_to_buy || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">Position sizing</div>
-            <div class="detail-val">${p.position_size || '—'}</div>
-          </div>
-        </div>
+        <!-- Trade plan table -->
+        <table class="trade-plan">
+          <thead><tr><th>Action</th><th>Price</th><th>Date</th><th>Instructions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--green)">BUY</td>
+              <td style="color:var(--green);font-size:16px;font-weight:800">${p.buy_price}</td>
+              <td style="color:var(--green)">${p.buy_by_date||'—'}</td>
+              <td style="color:var(--text2)">${p.buy_note||p.entry_strategy||'—'}</td>
+            </tr>
+            <tr>
+              <td style="color:var(--amber)">SELL</td>
+              <td style="color:var(--amber);font-size:16px;font-weight:800">${p.sell_price}</td>
+              <td style="color:var(--amber)">${p.sell_by_date||'—'}</td>
+              <td style="color:var(--text2)">${p.sell_note||p.exit_plan||'—'}</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">STOP LOSS</td>
+              <td style="color:var(--red);font-size:16px;font-weight:800">${p.stop_loss}</td>
+              <td style="color:var(--red)">${p.stop_date||'—'}</td>
+              <td style="color:var(--text2)">${p.stop_note||p.stop_reasoning||'—'}</td>
+            </tr>
+          </tbody>
+        </table>
 
-        ${p.dollar_example ? `
-        <div class="detail-box" style="margin-bottom:14px">
-          <div class="detail-label">Dollar examples</div>
-          <div class="detail-val" style="font-family:monospace;font-size:12px">${p.dollar_example}</div>
-        </div>` : ''}
-
-        <div class="levels-row">
-          <div class="level-box">
-            <div class="level-label">Entry</div>
-            <div class="level-price">${p.entry_price}</div>
-            <div class="level-pct neutral">${p.entry_type || ''}</div>
+        <div class="dgrid">
+          <div class="dbox">
+            <div class="dbox-lbl">Catalyst & timing</div>
+            <div class="dbox-val am">${p.catalyst||'—'}</div>
           </div>
-          <div class="level-box">
-            <div class="level-label">Target 1</div>
-            <div class="level-price up">${p.exit_target_1}</div>
-            <div class="level-pct up">${p.upside_pct}</div>
+          <div class="dbox">
+            <div class="dbox-lbl">Position size</div>
+            <div class="dbox-val bl">${p.position_size_pct||p.position_size||'—'}</div>
           </div>
-          <div class="level-box">
-            <div class="level-label">Target 2</div>
-            <div class="level-price up">${p.exit_target_2 || '—'}</div>
-            <div class="level-pct up">${p.upside_pct_t2 || ''}</div>
+          ${p.dollar_examples?`
+          <div class="dbox" style="grid-column:1/-1">
+            <div class="dbox-lbl">How many shares to buy</div>
+            <div class="dbox-val" style="font-family:monospace;font-size:11px">${p.dollar_examples||p.dollar_example||'—'}</div>
+          </div>`:''}
+          <div class="dbox">
+            <div class="dbox-lbl">Risk factors</div>
+            <div class="dbox-val dn">${p.risk_factors||'—'}</div>
           </div>
-          <div class="level-box">
-            <div class="level-label">Stop loss</div>
-            <div class="level-price down">${p.stop_loss}</div>
-            <div class="level-pct down">${p.downside_risk || ''}</div>
-          </div>
-        </div>
-
-        <div class="detail-grid" style="margin-bottom:14px">
-          <div class="detail-box">
-            <div class="detail-label">Exit plan</div>
-            <div class="detail-val">${p.exit_plan || p.sell_when || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">Stop-loss reasoning</div>
-            <div class="detail-val red">${p.stop_reasoning || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">Risk factors</div>
-            <div class="detail-val red">${p.risk_factors || '—'}</div>
-          </div>
-          <div class="detail-box">
-            <div class="detail-label">Confidence · Hold</div>
-            <div class="detail-val amber">${p.confidence} confidence · ${p.hold_days}</div>
+          <div class="dbox">
+            <div class="dbox-lbl">Confidence · Hold</div>
+            <div class="dbox-val am">${p.confidence} confidence · ${p.hold_days}</div>
           </div>
         </div>
 
-        ${p.robinhood_action ? `
-        <div class="detail-box" style="margin-bottom:14px;border-color:var(--green-bd)">
-          <div class="detail-label" style="color:var(--green)">Robinhood — exact steps</div>
-          <div class="detail-val green" style="font-size:12px">${p.robinhood_action}</div>
-        </div>` : ''}
+        ${p.robinhood_steps?`
+        <div class="rh-box">
+          <div class="rh-title">🟢 Robinhood — exact steps to place this order</div>
+          <div class="rh-steps">${p.robinhood_steps}</div>
+        </div>`:''}
 
-        <div class="action-strip">
-          <a class="btn btn-rh" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" rel="noopener">
-            🟢 Open in Robinhood
-          </a>
-          <a class="btn btn-blue" href="https://finance.yahoo.com/quote/${p.ticker}/news" target="_blank" rel="noopener">
-            📰 Yahoo Finance
-          </a>
-          <a class="btn btn-ghost" href="https://finviz.com/quote.ashx?t=${p.ticker}" target="_blank" rel="noopener">
-            📊 FinViz Chart
-          </a>
-          <a class="btn btn-ghost" href="https://stockanalysis.com/stocks/${p.ticker.toLowerCase()}/" target="_blank" rel="noopener">
-            🔍 Full Analysis
-          </a>
+        <div class="abtn-row">
+          <a class="abtn abtn-rh" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" rel="noopener">🟢 Open in Robinhood</a>
+          <a class="abtn abtn-blue" href="https://finance.yahoo.com/quote/${p.ticker}" target="_blank" rel="noopener">📰 Yahoo Finance</a>
+          <a class="abtn abtn-ghost" href="https://finviz.com/quote.ashx?t=${p.ticker}" target="_blank" rel="noopener">📊 FinViz Chart</a>
+          <a class="abtn abtn-ghost" href="https://stockanalysis.com/stocks/${p.ticker.toLowerCase()}/" target="_blank" rel="noopener">🔍 Full Analysis</a>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`
+  }).join('');
 
-  // auto-open first pick
-  const first = document.querySelector('.pick');
-  if (first && ACTIVE_FILTER === 'all') first.classList.add('open');
+  if(FILT==='all'&&f.length>0)document.querySelector('.pick')?.classList.add('open');
 }
 
-// ── Render full page ───────────────────────────────────────────────────────────
-function renderAll(d) {
-  const picks = d.picks || [];
-  ALL_PICKS = picks;
+function shortDate(d){
+  if(!d)return'—';
+  const m=d.match(/(\w+ \d+)/);
+  return m?m[1]:d;
+}
 
-  // Header time
-  document.getElementById('upd-time').textContent =
-    d.generated_at
-      ? 'Updated ' + new Date(d.generated_at).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',timeZoneName:'short'})
-      : 'Updated today';
+// ── render all data ───────────────────────────────────────────────────────────
+function renderAll(d){
+  const picks=d.picks||[];
+  ALL=picks;
 
-  // Brief
-  document.getElementById('brief-date').textContent = d.date || '';
-  document.getElementById('analyst-note').textContent = d.analyst_note || d.market_summary || '';
-  const wisdom = d.daily_wisdom || '';
-  if (wisdom) document.getElementById('daily-wisdom').textContent = '"' + wisdom + '"';
-  else document.getElementById('daily-wisdom').style.display = 'none';
+  // header
+  document.getElementById('upd').textContent=
+    d.generated_at?'Updated '+new Date(d.generated_at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):'';
 
-  // Macro metrics
-  const macro = d.macro_backdrop || {};
-  const trendEl = document.getElementById('m-trend');
-  const t = macro.market_trend || 'sideways';
-  trendEl.textContent = t.charAt(0).toUpperCase() + t.slice(1);
-  trendEl.className = 'metric-value ' + (t==='uptrend'?'up':t==='downtrend'?'down':'neutral');
+  // analyst brief
+  document.getElementById('adate').textContent=d.date||'';
+  document.getElementById('analyst-note').innerHTML=(d.analyst_note||d.market_summary||'').replace(/\b(S&P 500|Nasdaq|Dow|Fed|earnings|sector)\b/gi,'<b>$1</b>');
+  const wis=d.daily_wisdom||'';
+  if(wis)document.getElementById('wisdom').textContent='"'+wis+'"';
+  else document.getElementById('wisdom').style.display='none';
+  const kr=(d.macro_backdrop||{}).key_risk||d.market_summary||'';
+  if(kr)document.getElementById('key-risk').innerHTML='⚠️ Key risk: '+kr;
+  else document.getElementById('key-risk').style.display='none';
 
-  const sentEl = document.getElementById('m-sentiment');
-  sentEl.textContent = (d.market_sentiment || 'neutral').replace('_',' ');
-
-  const volEl = document.getElementById('m-vol');
-  const v = macro.volatility || 'moderate';
-  volEl.textContent = v.charAt(0).toUpperCase() + v.slice(1);
-  volEl.className = 'metric-value ' + (v==='low'?'up':v==='moderate'?'neutral':v==='elevated'?'down':'red');
-
-  const fedEl = document.getElementById('m-fed');
-  const f = macro.fed_stance || 'neutral';
-  fedEl.textContent = f.charAt(0).toUpperCase() + f.slice(1);
-  fedEl.className = 'metric-value ' + (f==='dovish'?'up':f==='hawkish'?'down':'neutral');
-
-  document.getElementById('m-count').textContent = picks.length;
-  const hi = picks.filter(p=>p.conviction==='high').length;
-  const me = picks.filter(p=>p.conviction==='medium').length;
-  const sp = picks.filter(p=>p.conviction==='speculative').length;
-  document.getElementById('m-breakdown').textContent = hi+'H / '+me+'M / '+sp+'S';
-
-  if (picks.length) {
-    const ups = picks.map(p=>pct(p.upside_pct));
-    document.getElementById('m-upside').textContent = '+' + (ups.reduce((a,b)=>a+b,0)/ups.length).toFixed(1) + '%';
-    const rrs = picks.map(p=>rr(p.risk_reward)).filter(n=>n>0);
-    if (rrs.length) document.getElementById('m-rr').textContent = (rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(1) + ':1';
+  // metrics
+  const mac=d.macro_backdrop||{};
+  const tEl=document.getElementById('m-trend');
+  const t=mac.market_trend||'sideways';
+  tEl.textContent=cap(t); tEl.className='mc-val '+(t==='uptrend'?'c-up':t==='downtrend'?'c-dn':'c-neu');
+  document.getElementById('m-sent').textContent=(d.market_sentiment||'neutral').replace('_',' ');
+  const vEl=document.getElementById('m-vol');
+  const v=mac.volatility||'moderate';
+  vEl.textContent=cap(v); vEl.className='mc-val '+(v==='low'?'c-up':v==='moderate'?'c-neu':v==='elevated'?'c-dn':'c-dn');
+  const fEl=document.getElementById('m-fed');
+  const f=mac.fed_stance||'neutral';
+  fEl.textContent=cap(f); fEl.className='mc-val '+(f==='dovish'?'c-up':f==='hawkish'?'c-dn':'c-neu');
+  document.getElementById('m-cnt').textContent=picks.length;
+  const hi=picks.filter(p=>p.conviction==='high').length;
+  const me=picks.filter(p=>p.conviction==='medium').length;
+  const sp=picks.filter(p=>p.conviction==='speculative').length;
+  document.getElementById('m-brk').textContent=hi+'H / '+me+'M / '+sp+'S';
+  if(picks.length){
+    const ups=picks.map(p=>num(p.upside_pct));
+    document.getElementById('m-up').textContent='+'+((ups.reduce((a,b)=>a+b,0)/ups.length).toFixed(1))+'%';
+    const probs=picks.map(p=>num(p.probability_of_target||'0')).filter(n=>n>0);
+    if(probs.length)document.getElementById('m-prob').textContent=(probs.reduce((a,b)=>a+b,0)/probs.length).toFixed(0)+'%';
   }
 
-  // Tab badges
-  document.getElementById('tb-picks').textContent = picks.length;
-  document.getElementById('tb-news').textContent = (d.news_signals || []).length;
+  // tab badges
+  document.getElementById('tb-p').textContent=picks.length;
+  document.getElementById('tb-n').textContent=(d.news_signals||[]).length;
 
-  // Picks
-  renderPicksList(picks);
+  // picks
+  renderList(picks);
 
-  // News
-  const news = d.news_signals || [];
-  if (news.length) {
-    document.getElementById('news-list').innerHTML = news.map(n => `
-      <div class="news-item">
-        <div class="news-dot nd-${n.impact||'neutral'}"></div>
-        <div class="news-body">
-          <div class="news-hl">${n.headline}</div>
-          ${n.why ? `<div class="news-why">${n.why}</div>` : ''}
-          <div class="news-meta">
-            <span class="news-ticker">${n.ticker}</span>
-            <span class="news-impact ni-${n.impact||'neutral'}" style="margin-left:6px">${(n.impact||'neutral').toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  } else {
-    document.getElementById('news-list').innerHTML = '<div class="empty"><p>No news signals loaded.</p></div>';
+  // skipped
+  const sk=d.stocks_considered_but_skipped||[];
+  if(sk.length){
+    document.getElementById('skipped-section').style.display='block';
+    document.getElementById('skipped-list').innerHTML=sk.map(s=>`
+      <div class="skip-item">
+        <div class="skip-ticker">${s.ticker}</div>
+        <div class="skip-reason">${s.reason||'Not recommended today'}</div>
+      </div>`).join('');
   }
 
-  // Market watch
-  const mw = d.market_watch || [];
-  document.getElementById('watch-list').innerHTML = mw.length
-    ? mw.map(w => `
-        <div class="watch-item">
-          <div class="watch-ticker">${w.ticker}</div>
-          <div class="watch-level">${w.level}</div>
-          <div class="watch-note">${w.note}</div>
-        </div>`).join('')
-    : '<div class="empty"><p>No levels loaded.</p></div>';
-
-  const leaders = macro.sector_leaders || [];
-  const laggards = macro.sector_laggards || [];
-  document.getElementById('sector-list').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="detail-box">
-        <div class="detail-label">Leading sectors</div>
-        ${leaders.map(s=>`<div class="detail-val up" style="margin-bottom:4px">▲ ${s}</div>`).join('')}
+  // news
+  const news=d.news_signals||[];
+  document.getElementById('news-list').innerHTML=news.length?news.map(n=>`
+    <div class="news-item">
+      <div class="ndot nd-${n.impact==='bullish'?'bull':n.impact==='bearish'?'bear':'neu'}"></div>
+      <div class="nbody">
+        <div class="nhl">${n.headline||''}<span class="nimp ni-${n.impact==='bullish'?'bull':n.impact==='bearish'?'bear':'neu'}">${(n.impact||'').toUpperCase()}</span></div>
+        ${n.why?`<div class="nwhy">${n.why}</div>`:''}
+        <div class="nmeta"><span class="nticker">${n.ticker||''}</span></div>
       </div>
-      <div class="detail-box">
-        <div class="detail-label">Lagging sectors</div>
-        ${laggards.map(s=>`<div class="detail-val down" style="margin-bottom:4px">▼ ${s}</div>`).join('')}
+    </div>`).join(''):'<div class="empty"><p>No signals loaded.</p></div>';
+
+  // watch
+  const mw=d.market_watch||[];
+  document.getElementById('watch-list').innerHTML=mw.length?mw.map(w=>`
+    <div class="witem">
+      <div class="wticker">${w.ticker}</div>
+      <div class="wlevel">${w.key_level||w.level||''}</div>
+      <div class="wnote">${w.note||''}</div>
+    </div>`).join(''):'<div class="empty"><p>No levels loaded.</p></div>';
+  const leaders=(mac.sector_leaders||[]);
+  const laggers=(mac.sector_laggards||[]);
+  document.getElementById('sector-list').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="dbox"><div class="dbox-lbl">Leading sectors today</div>
+        ${leaders.map(s=>`<div class="dbox-val up" style="margin-bottom:3px">▲ ${s}</div>`).join('')||'<div class="dbox-val">—</div>'}
+      </div>
+      <div class="dbox"><div class="dbox-lbl">Lagging sectors today</div>
+        ${laggers.map(s=>`<div class="dbox-val dn" style="margin-bottom:3px">▼ ${s}</div>`).join('')||'<div class="dbox-val">—</div>'}
       </div>
     </div>`;
 
-  // Alerts tab
-  document.getElementById('alerts-list').innerHTML = picks.map(p => `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:150px">
-        <div style="font-size:15px;font-weight:800">${p.ticker} <span style="font-size:12px;font-weight:400;color:var(--text2)">${p.name}</span></div>
-        <div style="font-size:12px;color:var(--text3);margin-top:3px">${p.thesis ? p.thesis.substring(0,80)+'...' : ''}</div>
+  // alerts
+  document.getElementById('alerts-list').innerHTML=picks.map(p=>`
+    <div class="alert-row">
+      <div class="alert-id">
+        <div class="alert-ticker">${p.ticker}</div>
+        <div class="alert-name">${p.name}</div>
       </div>
-      <div style="display:flex;gap:10px;text-align:center">
-        <div><div style="font-size:10px;color:var(--text3)">BUY AT</div><div style="font-size:14px;font-weight:700;color:var(--green)">${p.entry_price}</div></div>
-        <div><div style="font-size:10px;color:var(--text3)">TARGET</div><div style="font-size:14px;font-weight:700;color:var(--amber)">${p.exit_target_1}</div></div>
-        <div><div style="font-size:10px;color:var(--text3)">STOP</div><div style="font-size:14px;font-weight:700;color:var(--red)">${p.stop_loss}</div></div>
+      <div class="alert-prices">
+        <div class="aprice">
+          <div class="aprice-lbl">Buy alert</div>
+          <div class="aprice-val c-up">${p.buy_price}</div>
+          <div class="aprice-date">${shortDate(p.buy_by_date)}</div>
+        </div>
+        <div class="aprice">
+          <div class="aprice-lbl">Sell alert</div>
+          <div class="aprice-val c-neu">${p.sell_price}</div>
+          <div class="aprice-date">${shortDate(p.sell_by_date)}</div>
+        </div>
+        <div class="aprice">
+          <div class="aprice-lbl">Stop alert</div>
+          <div class="aprice-val c-dn">${p.stop_loss}</div>
+          <div class="aprice-date">Exit now</div>
+        </div>
       </div>
-      <a class="btn btn-rh" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" style="white-space:nowrap">Set Alert →</a>
-    </div>
-  `).join('');
+      <a class="abtn abtn-rh" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" style="white-space:nowrap">Set Alert →</a>
+    </div>`).join('');
 
-  // History
-  saveToHistory(d);
-  renderHistory();
+  saveHist(d);
+  renderHist();
 }
 
-// ── History ────────────────────────────────────────────────────────────────────
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem('as_history') || '[]'); } catch(e) { return []; }
+// ── history ───────────────────────────────────────────────────────────────────
+function getHist(){try{return JSON.parse(localStorage.getItem('as_h2')||'[]')}catch(e){return[]}}
+function saveHist(d){
+  if(!(d.picks||[]).length)return;
+  let h=getHist();
+  if(h.some(x=>x.date===d.date))return;
+  h.unshift({date:d.date,sent:d.market_sentiment,cnt:d.picks.length,
+    top:d.picks.slice(0,4).map(p=>({t:p.ticker,buy:p.buy_price,sell:p.sell_price,stop:p.stop_loss,up:p.upside_pct,prob:p.probability_of_target}))});
+  if(h.length>60)h=h.slice(0,60);
+  try{localStorage.setItem('as_h2',JSON.stringify(h))}catch(e){}
 }
-function saveToHistory(data) {
-  if (!data.picks || !data.picks.length) return;
-  let h = loadHistory();
-  if (h.some(x => x.date === data.date)) return;
-  h.unshift({ date: data.date, sentiment: data.market_sentiment, picks: data.picks.length, summary: data.market_summary, top3: data.picks.slice(0,3).map(p=>({ticker:p.ticker,upside:p.upside_pct,stop:p.stop_loss,target:p.exit_target_1})) });
-  if (h.length > 60) h = h.slice(0, 60);
-  try { localStorage.setItem('as_history', JSON.stringify(h)); } catch(e) {}
-}
-function renderHistory() {
-  const h = loadHistory();
-  if (!h.length) return;
-  const rows = h.map(e => `
+function renderHist(){
+  const h=getHist();
+  if(!h.length)return;
+  const rows=h.map(e=>`
     <tr>
-      <td>${e.date}</td>
-      <td><span style="color:${e.sentiment&&e.sentiment.includes('bull')?'var(--green)':e.sentiment&&e.sentiment.includes('bear')?'var(--red)':'var(--amber)'}">${e.sentiment||'—'}</span></td>
-      <td>${e.picks} picks</td>
-      <td style="color:var(--text2);font-size:12px">${e.summary||''}</td>
-      <td style="font-size:12px">${(e.top3||[]).map(p=>`<span style="color:var(--blue);font-weight:700">${p.ticker}</span> <span style="color:var(--green)">${p.upside}</span>`).join(' · ')}</td>
+      <td>${e.date||''}</td>
+      <td style="color:${(e.sent||'').includes('bull')?'var(--green)':(e.sent||'').includes('bear')?'var(--red)':'var(--amber)'}">${e.sent||'—'}</td>
+      <td>${e.cnt} picks</td>
+      <td>${(e.top||[]).map(p=>`
+        <span style="display:inline-block;margin-right:10px;margin-bottom:2px">
+          <span style="color:var(--blue);font-weight:800">${p.t}</span>
+          <span style="color:var(--green)">${p.buy}</span>→
+          <span style="color:var(--amber)">${p.sell}</span>
+          <span style="color:var(--text3);font-size:10px">(${p.prob||'?'})</span>
+        </span>`).join('')}
+      </td>
     </tr>`).join('');
-  document.getElementById('history-body').innerHTML = `
+  document.getElementById('history-body').innerHTML=`
     <div style="overflow-x:auto">
-      <table class="hist-table">
-        <thead><tr><th>Date</th><th>Sentiment</th><th>Picks</th><th>Summary</th><th>Top picks</th></tr></thead>
+      <table class="htable">
+        <thead><tr><th>Date</th><th>Sentiment</th><th>Picks</th><th>Top picks (buy → sell)</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
 }
-function clearHistory() {
-  if (confirm('Clear all history?')) {
-    localStorage.removeItem('as_history');
-    document.getElementById('history-body').innerHTML = '<div class="empty"><p>History cleared.</p></div>';
+function clearHist(){
+  if(confirm('Clear all history?')){
+    localStorage.removeItem('as_h2');
+    document.getElementById('history-body').innerHTML='<div class="empty"><p>History cleared.</p></div>';
   }
 }
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):''}
 
-// ── Load picks.json ────────────────────────────────────────────────────────────
-async function load() {
-  try {
-    const r = await fetch('picks.json?v=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (!d.picks || !d.picks.length) throw new Error('empty');
+// ── load picks.json ───────────────────────────────────────────────────────────
+async function load(){
+  try{
+    const r=await fetch('picks.json?v='+Date.now());
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(!(d.picks||[]).length)throw new Error('empty');
     renderAll(d);
-  } catch(e) {
-    document.getElementById('picks-list').innerHTML = `
+  }catch(e){
+    document.getElementById('picks-list').innerHTML=`
       <div class="empty">
         <div style="font-size:36px;margin-bottom:10px">⚠️</div>
-        <div class="empty-title">Picks not available yet</div>
-        <p style="margin-bottom:8px">${e.message === 'empty' ? 'Picks auto-generate at <strong>9:15 AM ET</strong> on weekdays.' : 'Could not load picks.json — check your setup.'}</p>
-        <p style="font-size:12px;color:var(--text3)">To run now: GitHub repo → Actions → Daily Stock Picks → Run workflow</p>
+        <div class="etitle">${e.message==='empty'?'Picks generate at 9:15 AM ET on weekdays':'Could not load picks'}</div>
+        <p style="margin-bottom:10px;font-size:12px">${e.message==='empty'?'':'Error: '+e.message}</p>
+        <p style="font-size:12px;color:var(--text3)">Manual run: GitHub → Actions → Daily Stock Picks → Run workflow</p>
       </div>`;
   }
 }
 
-// ── Init ───────────────────────────────────────────────────────────────────────
-document.getElementById('brief-date').textContent =
-  new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
-renderHistory();
+// init
+document.getElementById('adate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+renderHist();
 load();
 </script>
 </body>
