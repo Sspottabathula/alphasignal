@@ -1,9 +1,86 @@
 {
-  "date": "Placeholder — will be replaced daily at 9:15 AM ET",
-  "generated_at": "2025-01-01T00:00:00Z",
-  "market_summary": "Picks will auto-generate on the next weekday morning.",
+  "date": "Thursday, May 14, 2026",
+  "generated_at": "2026-05-14T17:59:31Z",
+  "market_summary": "Markets consolidating ahead of Friday retail sales data with tech showing relative strength.",
   "market_sentiment": "neutral",
-  "picks": [],
-  "news_signals": [],
-  "risk_warning": "High-risk picks — never invest more than you can afford to lose."
+  "picks": [
+    {
+      "rank": 1,
+      "ticker": "SMCI",
+      "name": "Super Micro Computer Inc.",
+      "sector": "Technology",
+      "thesis": "Earnings beat expected after close today, high short interest creates squeeze potential.",
+      "entry_price": "$842.00",
+      "entry_time": "Market open 9:30 AM ET",
+      "entry_note": "Enter on opening strength or pullback to $835-840 range before earnings.",
+      "exit_target": "$920.00",
+      "stop_loss": "$810.00",
+      "upside_pct": "+9.3%",
+      "downside_risk": "-3.8%",
+      "risk_reward": "2.4:1",
+      "risk_level": "Very High",
+      "timeframe": "1-3 days",
+      "confidence": "68%",
+      "catalyst": "Earnings",
+      "exit_signals": "Exit if earnings disappoint or target reached in after-hours session."
+    },
+    {
+      "rank": 2,
+      "ticker": "AVGO",
+      "name": "Broadcom Inc.",
+      "sector": "Technology",
+      "thesis": "Analyst upgrades citing AI infrastructure demand, reports earnings next week with high expectations.",
+      "entry_price": "$1,455.00",
+      "entry_time": "After 10:00 AM ET on confirmation",
+      "entry_note": "Wait for positive momentum confirmation above $1,450 with volume increase.",
+      "exit_target": "$1,540.00",
+      "stop_loss": "$1,420.00",
+      "upside_pct": "+5.8%",
+      "downside_risk": "-2.4%",
+      "risk_reward": "2.4:1",
+      "risk_level": "High",
+      "timeframe": "2-5 days",
+      "confidence": "72%",
+      "catalyst": "Sector rotation",
+      "exit_signals": "Exit if breaks below $1,420 or after earnings announcement next Wednesday."
+    },
+    {
+      "rank": 3,
+      "ticker": "RXRX",
+      "name": "Recursion Pharmaceuticals Inc.",
+      "sector": "Healthcare",
+      "thesis": "Phase 2 trial data readout expected imminently for oncology program REC-994.",
+      "entry_price": "$7.85",
+      "entry_time": "Market open 9:30 AM ET",
+      "entry_note": "Enter early before potential data release announcement with tight stop.",
+      "exit_target": "$9.50",
+      "stop_loss": "$7.20",
+      "upside_pct": "+21.0%",
+      "downside_risk": "-8.3%",
+      "risk_reward": "2.5:1",
+      "risk_level": "Very High",
+      "timeframe": "1-5 days",
+      "confidence": "55%",
+      "catalyst": "FDA",
+      "exit_signals": "Exit immediately on negative trial data or stop loss breach."
+    }
+  ],
+  "news_signals": [
+    {
+      "headline": "Super Micro reports earnings after bell today expectations high",
+      "impact": "bullish",
+      "ticker": "SMCI"
+    },
+    {
+      "headline": "Fed officials signal patience on rate cuts inflation sticky",
+      "impact": "bearish",
+      "ticker": "SPY"
+    },
+    {
+      "headline": "Broadcom receives multiple upgrades targeting AI infrastructure surge",
+      "impact": "bullish",
+      "ticker": "AVGO"
+    }
+  ],
+  "risk_warning": "High-risk picks \u2014 never invest more than you can afford to lose."
 }
