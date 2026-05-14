@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaSignal — Daily Stock Picks</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+<style>
+  :root {
+    --bg:       #0d1117;
+    --bg2:      #161b22;
+    --bg3:      #21262d;
+    --border:   #30363d;
+    --border2:  #484f58;
+    --text:     #e6edf3;
+    --text2:    #8b949e;
+    --text3:    #6e7681;
+    --green:    #3fb950;
+    --green-bg: #0d2a17;
+    --green-bd: #1a4928;
+    --red:      #f85149;
+    --red-bg:   #2a0d0d;
+    --red-bd:   #491a1a;
+    --amber:    #e3b341;
+    --amber-bg: #2a1e00;
+    --blue:     #58a6ff;
+    --blue-bg:  #0d1e38;
+    --blue-bd:  #1a3658;
+    --teal:     #39d353;
+    --accent:   #1f6feb;
+    --radius:   10px;
+    --radius-sm:6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── Layout ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo span { color: var(--green); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .live-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--green-bg); border: 1px solid var(--green-bd);
+    color: var(--green); font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+  .last-updated { font-size: 12px; color: var(--text3); }
+
+  /* ── Hero ── */
+  .hero { padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .hero-date { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+  .hero-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .hero-title span { color: var(--green); }
+  .sentiment-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1px solid; margin-top: 4px;
+  }
+  .sentiment-bullish { background: var(--green-bg); border-color: var(--green-bd); color: var(--green); }
+  .sentiment-bearish { background: var(--red-bg); border-color: var(--red-bd); color: var(--red); }
+  .sentiment-neutral  { background: var(--bg3); border-color: var(--border2); color: var(--text2); }
+  .summary-bar {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+    font-size: 14px; color: var(--text2); line-height: 1.5;
+  }
+  .summary-bar strong { color: var(--text); }
+
+  /* ── Metrics row ── */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .metric {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+  }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .metric-value { font-size: 22px; font-weight: 700; }
+  .metric-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .green { color: var(--green); }
+  .red   { color: var(--red); }
+  .amber { color: var(--amber); }
+  .blue  { color: var(--blue); }
+
+  /* ── Section headers ── */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* ── Pick cards ── */
+  .picks-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .pick-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: border-color .2s;
+  }
+  .pick-card:hover { border-color: var(--border2); }
+  .pick-card.rank-1 { border-left: 3px solid var(--green); }
+  .pick-card.rank-2 { border-left: 3px solid var(--blue); }
+  .pick-card.rank-3 { border-left: 3px solid var(--amber); }
+  .pick-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px; gap: 12px; flex-wrap: wrap;
+  }
+  .pick-left { display: flex; align-items: center; gap: 14px; }
+  .rank-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .rank-1 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+  .rank-2 { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-bd); }
+  .rank-3 { background: var(--amber-bg); color: var(--amber); }
+  .pick-ticker { font-size: 22px; font-weight: 700; }
+  .pick-name { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .pick-sector { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .pick-right { text-align: right; }
+  .pick-price { font-size: 20px; font-weight: 700; }
+  .pick-upside { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .pick-body { padding: 0 20px 18px; }
+  .pick-thesis {
+    font-size: 14px; color: var(--text2); line-height: 1.6;
+    border-left: 2px solid var(--border2); padding-left: 12px; margin-bottom: 14px;
+  }
+  .signals {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px;
+  }
+  @media (max-width: 560px) { .signals { grid-template-columns: 1fr 1fr; } }
+  .signal-box {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px;
+  }
+  .signal-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .signal-val { font-size: 13px; font-weight: 600; }
+  .pick-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .pill {
+    font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500;
+    background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
+  }
+  .pill-high    { background: var(--red-bg);   color: var(--red);   border-color: var(--red-bd); }
+  .pill-vhigh   { background: #2d0a0a;         color: #ff6b6b;      border-color: #5c1414; }
+  .pill-medium  { background: var(--amber-bg); color: var(--amber); border-color: #3d2d00; }
+  .exit-note {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    font-size: 12px; color: var(--text3); margin-bottom: 14px; line-height: 1.5;
+  }
+  .exit-note strong { color: var(--text2); }
+  .pick-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    font-size: 13px; font-weight: 500; padding: 7px 16px;
+    border-radius: var(--radius-sm); border: 1px solid; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    transition: opacity .15s, transform .1s; font-family: inherit;
+  }
+  .btn:hover { opacity: .8; }
+  .btn:active { transform: scale(.97); }
+  .btn-green { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+  .btn-blue  { background: var(--blue-bg);  color: var(--blue);  border-color: var(--blue-bd); }
+  .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border2); }
+  .robinhood-btn {
+    background: #00c805; color: #000; border-color: #00c805;
+    font-weight: 700; font-size: 12px;
+  }
+  .robinhood-btn:hover { background: #00b004; }
+
+  /* ── News signals ── */
+  .news-list { margin-bottom: 32px; }
+  .news-item {
+    display: flex; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-impact {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 6px;
+  }
+  .impact-bullish { background: var(--green); }
+  .impact-bearish { background: var(--red); }
+  .impact-neutral { background: var(--text3); }
+  .news-headline { font-size: 14px; color: var(--text); line-height: 1.4; }
+  .news-meta { font-size: 12px; color: var(--text3); margin-top: 3px; }
+  .news-ticker { font-weight: 600; color: var(--blue); }
+
+  /* ── History ── */
+  .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .history-table th {
+    text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tr:hover td { background: var(--bg3); }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 10px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--text2); background: none; border: none;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-family: inherit; transition: color .15s;
+  }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab-btn:hover { color: var(--text); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Alert panel ── */
+  .alert-list { display: flex; flex-direction: column; gap: 10px; }
+  .alert-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+  .alert-body { flex: 1; }
+  .alert-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .alert-desc { font-size: 13px; color: var(--text2); line-height: 1.4; }
+  .alert-time { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ── How to set Robinhood alerts ── */
+  .howto { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .howto-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .howto-step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .howto-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .howto-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 24px 20px;
+    margin-top: 40px; font-size: 12px; color: var(--text3); line-height: 1.7;
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Loading / empty states ── */
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text3); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--green); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Progress bar ── */
+  .progress { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; margin-bottom: 12px; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 1px; transition: width .4s ease; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .hero-title { font-size: 22px; }
+    .pick-price { font-size: 16px; }
+    .pick-ticker { font-size: 18px; }
+    .signals { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Alpha<span>Signal</span></div>
+  <div class="header-right">
+    <div class="live-pill"><div class="live-dot"></div>AI-Powered</div>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="hero-date" id="hero-date"></div>
+        <div class="hero-title">Today's <span>Top 3 Picks</span></div>
+      </div>
+      <div id="sentiment-badge" class="sentiment-badge sentiment-neutral">⚡ Loading...</div>
+    </div>
+    <div class="summary-bar" id="summary-bar">
+      <strong>Market summary:</strong> <span id="market-summary">Loading today's market analysis...</span>
+    </div>
+  </div>
+
+  <!-- METRIC CARDS -->
+  <div class="metrics" id="metrics">
+    <div class="metric">
+      <div class="metric-label">Picks today</div>
+      <div class="metric-value green" id="m-count">—</div>
+      <div class="metric-sub">AI-generated</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg upside target</div>
+      <div class="metric-value green" id="m-avg-up">—</div>
+      <div class="metric-sub">Based on entry/exit</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg confidence</div>
+      <div class="metric-value amber" id="m-avg-conf">—</div>
+      <div class="metric-sub">Model confidence</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Market opens</div>
+      <div class="metric-value blue" id="m-open">9:30 AM ET</div>
+      <div class="metric-sub">NYSE / NASDAQ</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('picks', this)">Today's Picks</button>
+    <button class="tab-btn" onclick="switchTab('alerts', this)">Robinhood Alerts</button>
+    <button class="tab-btn" onclick="switchTab('news', this)">News Signals</button>
+    <button class="tab-btn" onclick="switchTab('history', this)">History</button>
+  </div>
+
+  <!-- TAB: PICKS -->
+  <div id="tab-picks" class="tab-panel active">
+    <div class="picks-grid" id="picks-grid">
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <div class="empty-title">Loading today's picks...</div>
+        <p>Fetching from picks.json</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ALERTS -->
+  <div id="tab-alerts" class="tab-panel">
+    <div class="section-header"><span class="section-title">Set price alerts in Robinhood</span></div>
+    <div class="alert-list" id="alert-list">
+      <div class="empty-state"><p>Load picks first to see alerts.</p></div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="howto">
+        <div class="howto-title">📱 How to set price alerts in Robinhood</div>
+        <div class="howto-step"><div class="howto-num">1</div><div class="howto-text">Open Robinhood app → tap the Search icon → type the ticker (e.g. NVDA)</div></div>
+        <div class="howto-step"><div class="howto-num">2</div><div class="howto-text">Tap the 🔔 bell icon in the top-right of the stock page</div></div>
+        <div class="howto-step"><div class="howto-num">3</div><div class="howto-text">Set <strong>Price alert at entry price</strong> (buy signal) and a <strong>second alert at exit target</strong> (sell signal)</div></div>
+        <div class="howto-step"><div class="howto-num">4</div><div class="howto-text">Tap Save — Robinhood will push a notification when the price hits your level</div></div>
+        <div class="howto-step"><div class="howto-num">5</div><div class="howto-text">Repeat for all 3 picks every morning after 9:15 AM ET when picks refresh</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: NEWS -->
+  <div id="tab-news" class="tab-panel">
+    <div class="section-header"><span class="section-title">Key market signals</span></div>
+    <div class="news-list" id="news-list">
+      <div class="empty-state"><p>Load picks first to see news signals.</p></div>
+    </div>
+  </div>
+
+  <!-- TAB: HISTORY -->
+  <div id="tab-history" class="tab-panel">
+    <div class="section-header"><span class="section-title">Pick history</span></div>
+    <div id="history-container">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No history yet</div>
+        <p>Previous picks will appear here after the first daily run.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="container" style="padding-bottom:0">
+    <strong>⚠️ Disclaimer:</strong> AlphaSignal is an AI-powered research tool and does NOT constitute financial advice.
+    These are high-risk, speculative ideas — you may lose your entire investment. Always do your own due diligence.
+    Past picks are not indicative of future results. This tool is for informational purposes only.<br><br>
+    Built by <a href="https://github.com/Sspottabathula" target="_blank">Sspottabathula</a> ·
+    Powered by <a href="https://anthropic.com" target="_blank">Anthropic Claude</a> ·
+    Hosted on <a href="https://pages.github.com" target="_blank">GitHub Pages</a> ·
+    Auto-updates Mon–Fri at 9:15 AM ET
+  </div>
+</footer>
+
+<script>
+// ── Utilities ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+function riskClass(level) {
+  if (!level) return 'pill';
+  const l = level.toLowerCase();
+  if (l.includes('very')) return 'pill pill-vhigh';
+  if (l.includes('high')) return 'pill pill-high';
+  if (l.includes('med'))  return 'pill pill-medium';
+  return 'pill';
+}
+
+function rankClass(r) {
+  return r === 1 ? 'rank-1' : r === 2 ? 'rank-2' : 'rank-3';
+}
+
+function cardBorderClass(r) {
+  return r === 1 ? 'rank-1' : r === 2 ? 'rank-2' : 'rank-3';
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Load picks.json ────────────────────────────────────────────────────────────
+async function loadPicks() {
+  try {
+    const res = await fetch('picks.json?v=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderAll(data);
+  } catch (err) {
+    $('picks-grid').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">Could not load picks</div>
+        <p style="margin-bottom:12px">${err.message}</p>
+        <p>Picks auto-generate at <strong>9:15 AM ET</strong> on weekdays via GitHub Actions.</p>
+        <p style="margin-top:8px;font-size:12px;color:var(--text3)">
+          Make sure you've added your <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">ANTHROPIC_API_KEY</code> secret in GitHub → Settings → Secrets.
+        </p>
+      </div>`;
+  }
+}
+
+// ── Render everything ──────────────────────────────────────────────────────────
+function renderAll(data) {
+  const picks = data.picks || [];
+  const today = data.date || '';
+  const sentiment = data.market_sentiment || 'neutral';
+
+  // Header
+  $('hero-date').textContent = today;
+  $('last-updated').textContent = 'Updated ' + (data.generated_at ? new Date(data.generated_at).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', timeZoneName:'short'}) : 'today');
+
+  // Summary
+  $('market-summary').textContent = data.market_summary || '';
+
+  // Sentiment badge
+  const badge = $('sentiment-badge');
+  const icons = { bullish:'📈', bearish:'📉', neutral:'➡️' };
+  badge.textContent = (icons[sentiment] || '⚡') + ' Market ' + sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+  badge.className = 'sentiment-badge sentiment-' + sentiment;
+
+  // Metrics
+  $('m-count').textContent = picks.length;
+  if (picks.length) {
+    const upsides = picks.map(p => parseFloat((p.upside_pct || '0').replace('%','').replace('+','')));
+    const avgUp = upsides.reduce((a,b) => a+b, 0) / upsides.length;
+    $('m-avg-up').textContent = '+' + avgUp.toFixed(1) + '%';
+    const confs = picks.map(p => parseFloat((p.confidence || '0').replace('%','')));
+    const avgConf = confs.reduce((a,b) => a+b, 0) / confs.length;
+    $('m-avg-conf').textContent = avgConf.toFixed(0) + '%';
+  }
+
+  // Picks
+  if (!picks.length) {
+    $('picks-grid').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🕐</div>
+        <div class="empty-title">Picks not yet generated</div>
+        <p>The daily automation runs at <strong>9:15 AM ET</strong> on weekdays.</p>
+        <p style="margin-top:8px;color:var(--text3);font-size:12px">You can also trigger it manually: GitHub repo → Actions → Daily Stock Picks → Run workflow</p>
+      </div>`;
+    return;
+  }
+
+  const pickHtml = picks.map(p => `
+    <div class="pick-card ${cardBorderClass(p.rank)}">
+      <div class="pick-header">
+        <div class="pick-left">
+          <div class="rank-circle ${rankClass(p.rank)}">#${p.rank}</div>
+          <div>
+            <div class="pick-ticker">${p.ticker}</div>
+            <div class="pick-name">${p.name}</div>
+            <div class="pick-sector">${p.sector || ''}</div>
+          </div>
+        </div>
+        <div class="pick-right">
+          <div class="pick-price">${p.entry_price}</div>
+          <div class="pick-upside green">${p.upside_pct} target</div>
+        </div>
+      </div>
+      <div class="pick-body">
+        <div class="pick-thesis">${p.thesis}</div>
+        <div class="signals">
+          <div class="signal-box">
+            <div class="signal-label">Entry signal</div>
+            <div class="signal-val green">${p.entry_time}</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-label">Exit target</div>
+            <div class="signal-val amber">${p.exit_target}</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-label">Stop loss</div>
+            <div class="signal-val red">${p.stop_loss}</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-label">Risk/reward</div>
+            <div class="signal-val blue">${p.risk_reward || '—'}</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-label">Timeframe</div>
+            <div class="signal-val">${p.timeframe}</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-label">Confidence</div>
+            <div class="signal-val amber">${p.confidence}</div>
+          </div>
+        </div>
+        <div class="pick-meta">
+          <span class="${riskClass(p.risk_level)}">${p.risk_level} risk</span>
+          <span class="pill">📊 ${p.catalyst}</span>
+          ${p.downside_risk ? `<span class="pill red">Downside: ${p.downside_risk}</span>` : ''}
+        </div>
+        ${p.exit_signals ? `<div class="exit-note"><strong>Exit strategy:</strong> ${p.exit_signals}</div>` : ''}
+        ${p.entry_note ? `<div class="exit-note" style="border-color:var(--green-bd);"><strong>Entry note:</strong> ${p.entry_note}</div>` : ''}
+        <div class="pick-actions">
+          <a class="btn btn-green" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" rel="noopener">
+            📈 Open in Robinhood
+          </a>
+          <a class="btn btn-blue" href="https://finance.yahoo.com/quote/${p.ticker}" target="_blank" rel="noopener">
+            📊 Yahoo Finance
+          </a>
+          <a class="btn btn-ghost" href="https://finviz.com/quote.ashx?t=${p.ticker}" target="_blank" rel="noopener">
+            🔍 FinViz Chart
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  $('picks-grid').innerHTML = pickHtml;
+
+  // Alerts tab
+  const alertHtml = picks.map(p => `
+    <div class="alert-item">
+      <div class="alert-icon">🔔</div>
+      <div class="alert-body">
+        <div class="alert-title">${p.ticker} — ${p.name}</div>
+        <div class="alert-desc">
+          Buy alert: <strong>${p.entry_price}</strong> &nbsp;|&nbsp;
+          Exit target: <strong class="green">${p.exit_target}</strong> &nbsp;|&nbsp;
+          Stop loss: <strong class="red">${p.stop_loss}</strong>
+        </div>
+        <div class="alert-desc" style="margin-top:4px">${p.thesis}</div>
+        <div class="alert-time">${p.risk_level} risk · ${p.timeframe} · ${p.confidence} confidence</div>
+      </div>
+      <a class="btn btn-green" style="white-space:nowrap;font-size:12px" href="https://robinhood.com/stocks/${p.ticker}" target="_blank" rel="noopener">
+        Set alert →
+      </a>
+    </div>
+  `).join('');
+  $('alert-list').innerHTML = alertHtml;
+
+  // News tab
+  const news = data.news_signals || [];
+  if (news.length) {
+    $('news-list').innerHTML = news.map(n => `
+      <div class="news-item">
+        <div class="news-impact impact-${n.impact || 'neutral'}"></div>
+        <div>
+          <div class="news-headline">${n.headline}</div>
+          <div class="news-meta"><span class="news-ticker">${n.ticker}</span> · ${n.impact || 'neutral'}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // History — load from localStorage
+  loadHistory(data);
+}
+
+// ── History (localStorage) ─────────────────────────────────────────────────────
+function loadHistory(latestData) {
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem('alphasignal_history') || '[]'); } catch(e){}
+
+  // Add today's picks if not already stored
+  const todayKey = latestData.date || '';
+  const alreadyStored = history.some(h => h.date === todayKey);
+  if (!alreadyStored && (latestData.picks || []).length > 0) {
+    history.unshift({ date: todayKey, picks: latestData.picks });
+    if (history.length > 30) history = history.slice(0, 30);
+    try { localStorage.setItem('alphasignal_history', JSON.stringify(history)); } catch(e){}
+  }
+
+  if (!history.length) return;
+
+  // Build flat table
+  const rows = history.flatMap(entry =>
+    (entry.picks || []).map(p => `
+      <tr>
+        <td>${entry.date}</td>
+        <td style="font-weight:600">${p.ticker}</td>
+        <td style="color:var(--text2)">${p.name}</td>
+        <td style="color:var(--green)">${p.entry_price}</td>
+        <td style="color:var(--amber)">${p.exit_target}</td>
+        <td style="color:var(--red)">${p.stop_loss}</td>
+        <td><span class="${riskClass(p.risk_level)}">${p.risk_level}</span></td>
+      </tr>
+    `)
+  ).join('');
+
+  $('history-container').innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="history-table">
+        <thead><tr>
+          <th>Date</th><th>Ticker</th><th>Name</th>
+          <th>Entry</th><th>Target</th><th>Stop</th><th>Risk</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Date display ───────────────────────────────────────────────────────────────
+const now = new Date();
+document.title = 'AlphaSignal — ' + now.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+
+// ── Boot ───────────────────────────────────────────────────────────────────────
+loadPicks();
+</script>
+</body>
+</html>
