@@ -1,11 +1,9 @@
 """
-AlphaSignal v3 - Disciplined Stock Investor Daily Picks
-NO OPTIONS. NO FUTURES. NO MARGIN. NO SHORTS.
-BUY SHARES -> HOLD -> SELL SHARES. That is all.
-
-Strategy: Only picks with >50% probability of hitting target.
-Uses: momentum + earnings revision + sector rotation + support/resistance.
-Timeframe: 5-21 days. Real prices. Real dates. Conservative targets.
+AlphaSignal v4 - HIGH RISK / HIGH RETURN Aggressive Stock Picks
+Target: 10-40% gains in 3-14 days on volatile, catalyst-driven stocks.
+Focus: Biotech, small/mid-cap momentum, earnings plays, short squeezes,
+       breakouts, sector hot-money rotations, IPO momentum.
+NO OPTIONS. BUY SHARES ONLY.
 """
 
 import anthropic
@@ -26,9 +24,7 @@ now_utc   = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def next_trading_day(d, n):
-    """Return date n trading days from d, skipping weekends."""
-    cur = d
-    count = 0
+    cur, count = d, 0
     while count < n:
         cur += datetime.timedelta(days=1)
         if cur.weekday() < 5:
@@ -36,126 +32,172 @@ def next_trading_day(d, n):
     return cur
 
 
+t3  = next_trading_day(today,  3).strftime("%B %d, %Y")
 t5  = next_trading_day(today,  5).strftime("%B %d, %Y")
 t10 = next_trading_day(today, 10).strftime("%B %d, %Y")
-t15 = next_trading_day(today, 15).strftime("%B %d, %Y")
+t14 = next_trading_day(today, 14).strftime("%B %d, %Y")
 
 
 SYSTEM_PROMPT = (
-    "You are a disciplined professional stock investor with 30 years of experience. "
-    "You ONLY recommend buying and selling shares of stock. "
-    "You NEVER mention: options, calls, puts, contracts, strike prices, expiry dates, "
-    "derivatives, futures, margin, leverage, short selling, or any derivative instrument. "
-    "Every price you quote must be a realistic current market price as of today. "
-    "Every recommendation must have greater than 50 percent probability of success. "
+    "You are an aggressive short-term stock trader with 30 years of experience "
+    "specializing in high-volatility, high-return opportunities. "
+    "You focus on biotech binary events, momentum breakouts, short squeezes, "
+    "earnings surprises, and small-cap catalysts that can move 15-50% in days. "
+    "You ONLY recommend buying and selling SHARES of stock. "
+    "You NEVER mention: options, calls, puts, contracts, strike prices, expiry, "
+    "derivatives, futures, margin, leverage, or short selling. "
+    "All prices must be realistic current market prices. "
     "You respond ONLY with valid JSON and nothing else."
 )
 
 
 def build_prompt():
-    """Build the analysis prompt with today's dates baked in."""
 
     json_example = (
         '{\n'
         '  "date": "' + today_str + '",\n'
         '  "generated_at": "' + now_utc + '",\n'
-        '  "analyst_note": "3-4 sentences. What is the S&P 500 doing today? Which sectors lead? Key macro risk? Be specific with index levels.",\n'
-        '  "market_sentiment": "bullish|cautious_bullish|neutral|cautious_bearish|bearish",\n'
-        '  "market_summary": "One precise sentence with specific index levels and what is driving the market today.",\n'
+        '  "strategy": "High Risk / High Return - Aggressive Short-Term Stock Picks",\n'
+        '  "analyst_note": "3-4 sentences on which aggressive themes have the hottest momentum today. Name specific sectors, catalysts, and market conditions creating opportunity. Be specific - reference actual recent moves.",\n'
+        '  "market_sentiment": "risk-on|cautious-risk-on|neutral|risk-off",\n'
+        '  "market_summary": "One sentence on overall risk appetite and which aggressive themes are working today.",\n'
         '  "macro_backdrop": {\n'
-        '    "fed_stance": "hawkish|neutral|dovish",\n'
+        '    "risk_appetite": "high|moderate|low",\n'
+        '    "hot_themes": ["AI/Chips", "Biotech FDA", "Short Squeeze"],\n'
         '    "market_trend": "uptrend|downtrend|sideways",\n'
         '    "volatility": "low|moderate|elevated|extreme",\n'
-        '    "key_risk": "The single most important risk to watch this week.",\n'
-        '    "sector_leaders": ["Technology", "Energy"],\n'
-        '    "sector_laggards": ["Utilities", "Real Estate"]\n'
+        '    "key_risk": "Biggest risk that could kill momentum this week.",\n'
+        '    "sector_leaders": ["Biotech", "Semiconductors"],\n'
+        '    "sector_laggards": ["Utilities", "Consumer Staples"]\n'
         '  },\n'
-        '  "total_picks": 7,\n'
+        '  "total_picks": 8,\n'
         '  "picks": [\n'
         '    {\n'
         '      "rank": 1,\n'
         '      "conviction": "high",\n'
-        '      "ticker": "NVDA",\n'
-        '      "name": "NVIDIA Corporation",\n'
+        '      "ticker": "MSTR",\n'
+        '      "name": "MicroStrategy Inc.",\n'
         '      "sector": "Technology",\n'
-        '      "industry": "Semiconductors",\n'
-        '      "trade_type": "Swing Trade",\n'
-        '      "current_price": "$1087.00",\n'
-        '      "thesis": "Two specific sentences about what is happening with this company RIGHT NOW and why the stock will go up. Reference actual recent news or earnings data.",\n'
-        '      "fundamental_view": "One sentence on earnings growth rate, revenue trajectory, or valuation metric supporting buying now.",\n'
-        '      "technical_setup": "One sentence: trend direction, key moving average level, volume signal.",\n'
-        '      "catalyst": "Specific upcoming catalyst with approximate date if known.",\n'
-        '      "buy_price": "$1082.00",\n'
-        '      "buy_by_date": "' + t5 + '",\n'
-        '      "buy_note": "Specific instruction: e.g. Set a limit buy order at $1082. If stock opens above $1090, wait for a pullback before entering.",\n'
-        '      "sell_price": "$1145.00",\n'
+        '      "industry": "Bitcoin Proxy / Software",\n'
+        '      "trade_type": "Momentum Breakout",\n'
+        '      "why_high_risk_high_return": "High beta to BTC, volatile, can move 15-30% in a week on BTC momentum.",\n'
+        '      "current_price": "$185.00",\n'
+        '      "thesis": "Two sentences: what specific catalyst or momentum setup makes this stock likely to explode higher in the next 3-14 days. Name the actual trigger.",\n'
+        '      "technical_setup": "Describe the chart setup: breakout level, volume surge, moving average position, momentum indicator.",\n'
+        '      "catalyst": "Exact catalyst: e.g. FDA PDUFA date May 20, earnings May 22, BTC breakout above $70k, short squeeze building with 25% SI.",\n'
+        '      "catalyst_date": "' + t5 + '",\n'
+        '      "pre_catalyst_buy": true,\n'
+        '      "buy_price": "$183.00",\n'
+        '      "buy_by_date": "' + t3 + '",\n'
+        '      "buy_note": "Exact entry instruction. e.g. Place limit order at $183. Enter before catalyst date. Do not chase above $190.",\n'
+        '      "sell_price_conservative": "$205.00",\n'
+        '      "sell_price_aggressive": "$225.00",\n'
         '      "sell_by_date": "' + t10 + '",\n'
-        '      "sell_note": "Specific exit instruction including whether to take partial profits.",\n'
-        '      "stop_loss": "$1048.00",\n'
-        '      "stop_date": "' + t5 + '",\n'
-        '      "stop_note": "If stock closes below $1048 (below 50-day MA), exit immediately. This level invalidates the thesis.",\n'
-        '      "upside_pct": "+5.8%",\n'
-        '      "downside_risk": "-3.1%",\n'
-        '      "risk_reward": "1.9:1",\n'
-        '      "hold_days": "7-10 days",\n'
-        '      "confidence": "68%",\n'
-        '      "probability_of_target": "65%",\n'
-        '      "position_size_pct": "3% of portfolio",\n'
-        '      "dollar_examples": "$1000 account: 0 shares | $5000 account: 4 shares | $10000 account: 9 shares",\n'
-        '      "exit_plan": "Sell 50% at sell target. Move stop to breakeven on remainder. Sell balance at target 2 or stop.",\n'
-        '      "risk_factors": "Specific risk that could cause this trade to fail.",\n'
-        '      "robinhood_steps": "1. Search NVDA  2. Tap Buy  3. Select Shares  4. Change to Limit Order  5. Set price $1082  6. Enter quantity  7. Set Good Till Cancelled  8. Submit"\n'
+        '      "sell_note": "Exact exit: e.g. Sell 50% at $205 (conservative). Let rest run to $225 if momentum holds. Exit ALL before catalyst if uncertain.",\n'
+        '      "stop_loss": "$170.00",\n'
+        '      "stop_date": "' + t3 + '",\n'
+        '      "stop_note": "If stock closes below $170 (key support), exit immediately. Do not hold through breakdown.",\n'
+        '      "upside_conservative": "+12.0%",\n'
+        '      "upside_aggressive": "+22.9%",\n'
+        '      "downside_risk": "-7.1%",\n'
+        '      "risk_reward_conservative": "1.7:1",\n'
+        '      "risk_reward_aggressive": "3.2:1",\n'
+        '      "hold_days": "3-7 days",\n'
+        '      "confidence": "65%",\n'
+        '      "probability_of_target": "60%",\n'
+        '      "volatility_profile": "Very High - can move 10%+ in a single day",\n'
+        '      "market_cap": "Mid-cap $5B",\n'
+        '      "short_interest": "18% of float",\n'
+        '      "position_size_pct": "1-2% of portfolio MAX - this is aggressive",\n'
+        '      "dollar_examples": "$1000: 5 shares | $5000: 27 shares | $10000: 54 shares",\n'
+        '      "exit_plan": "Sell half at conservative target. Trail stop on rest. Never let a winner turn into a loss - move stop to breakeven after 8% gain.",\n'
+        '      "risk_factors": "Specific risks: e.g. BTC drops below $60k kills this trade. Broader risk-off would hit hard. Very thin liquidity.",\n'
+        '      "warning": "HIGH RISK: This stock can lose 15-20% as fast as it gains. Size position accordingly.",\n'
+        '      "robinhood_steps": "1. Search ticker  2. Tap Buy  3. Select Shares  4. Limit Order  5. Set price  6. Enter qty  7. Good Till Cancelled  8. Submit"\n'
         '    }\n'
         '  ],\n'
-        '  "stocks_considered_but_skipped": [\n'
-        '    {"ticker": "TSLA", "reason": "Below 50-day MA with negative earnings revision trend. Risk/reward unfavorable."}\n'
+        '  "top_biotech_watch": [\n'
+        '    {"ticker": "XXXX", "catalyst": "FDA PDUFA date", "date": "' + t10 + '", "note": "Binary event - stock could double or halve. Small position only."}\n'
+        '  ],\n'
+        '  "short_squeeze_radar": [\n'
+        '    {"ticker": "XXXX", "short_interest": "35% of float", "days_to_cover": "4.2", "note": "Any positive news could ignite a squeeze."}\n'
+        '  ],\n'
+        '  "stocks_avoided_today": [\n'
+        '    {"ticker": "AAPL", "reason": "Large cap, low volatility, 2% annual mover. Wrong tool for high-return strategy."}\n'
         '  ],\n'
         '  "market_watch": [\n'
-        '    {\n'
-        '      "ticker": "SPY",\n'
-        '      "current_level": "$523",\n'
-        '      "key_level": "$518",\n'
-        '      "note": "Key support at $518 (50-day MA). Hold = bullish. Break = reduce all exposure."\n'
-        '    }\n'
+        '    {"ticker": "IWM", "current_level": "$210", "key_level": "$205", "note": "Small cap proxy. Above $205 = risk-on for high beta names."}\n'
         '  ],\n'
         '  "news_signals": [\n'
-        '    {"headline": "Specific real headline under 12 words", "impact": "bullish", "ticker": "NVDA", "why": "One sentence on direct price impact."}\n'
+        '    {"headline": "Real headline driving high-beta stocks today", "impact": "bullish", "ticker": "MSTR", "why": "Direct price impact explanation."}\n'
         '  ],\n'
-        '  "daily_wisdom": "A specific actionable investing lesson relevant to today\'s market conditions.",\n'
-        '  "risk_warning": "These are stock picks for informational purposes only. Not financial advice. Buy shares only."\n'
+        '  "daily_wisdom": "An aggressive trader wisdom quote relevant to today - about cutting losses fast, riding momentum, or position sizing.",\n'
+        '  "risk_warning": "EXTREME RISK: These are highly speculative stocks that can lose 20-50% rapidly. Only invest money you can afford to lose completely. Not financial advice. Buy shares only."\n'
         '}'
     )
 
     prompt = (
         "Today is " + today_str + ".\n\n"
-        "You are a seasoned professional investor with 30 years of active market experience.\n\n"
-        "=== ABSOLUTE RULES - NEVER VIOLATE ===\n"
-        "1. STOCKS ONLY. Recommend buying and selling SHARES of stock.\n"
-        "   FORBIDDEN WORDS: calls, puts, options, contracts, strike price, expiry,\n"
-        "   derivatives, futures, margin, leverage, short selling.\n"
-        "   If you feel like mentioning any of those words - DO NOT. Recommend the stock instead.\n\n"
-        "2. REALISTIC PRICES. Use your knowledge of current stock prices as of today.\n"
-        "   Reference price ranges: NVDA ~$900-1100, AAPL ~$170-200, TSLA ~$170-280,\n"
-        "   AMZN ~$180-210, META ~$480-580, MSFT ~$410-450, GOOGL ~$160-180,\n"
-        "   AMD ~$150-180, PLTR ~$80-120, SPY ~$510-540.\n"
-        "   Do NOT invent prices far outside these ranges.\n\n"
-        "3. GREATER THAN 50 PERCENT PROBABILITY. Only include picks you genuinely believe\n"
-        "   have more than 50% chance of hitting the target. Be conservative.\n"
-        "   A 4% gain that is likely beats a 20% gain that is unlikely.\n\n"
-        "4. CONSERVATIVE TARGETS. Set sell prices at 3-8% above buy for most picks.\n"
-        "   Only exceptional setups get 10-15% targets.\n"
-        "   Targets must be at prior resistance or recent highs - not random numbers.\n\n"
-        "5. TIGHT STOPS. Stop loss at 2-5% below buy price.\n"
-        "   Stop must be at a key technical level (support, moving average, round number).\n\n"
-        "6. SPECIFIC DATES for every pick:\n"
-        "   ~5 trading days from today = " + t5 + "\n"
-        "   ~10 trading days from today = " + t10 + "\n"
-        "   ~15 trading days from today = " + t15 + "\n\n"
-        "7. PICK COUNT. Generate 5 to 15 picks based on genuine opportunity.\n"
-        "   Do NOT pad with weak ideas. Quality beats quantity.\n\n"
-        "=== ANALYSIS FRAMEWORK ===\n"
-        "For each stock evaluate: price momentum, earnings revisions, relative strength,\n"
-        "institutional volume, upcoming catalyst, and risk/reward (minimum 1.5:1).\n\n"
+
+        "You are an aggressive short-term trader hunting for HIGH RISK / HIGH RETURN stock plays.\n\n"
+
+        "=== YOUR MANDATE ===\n"
+        "Find stocks that can move 15-40% in the next 3-14 days.\n"
+        "These are NOT safe, stable investments. These are aggressive momentum plays.\n"
+        "The investor knows these are risky and WANTS them anyway.\n\n"
+
+        "=== WHAT TO LOOK FOR ===\n"
+        "BIOTECH BINARY EVENTS:\n"
+        "  - FDA PDUFA dates in the next 2-3 weeks (drug approval decisions)\n"
+        "  - Phase 2/3 clinical trial readouts expected soon\n"
+        "  - Small/mid-cap biotech with $500M-$5B market cap (not Pfizer/JNJ)\n"
+        "  - Stocks that could double on approval or drop 50% on failure\n\n"
+        "MOMENTUM BREAKOUTS:\n"
+        "  - Stocks breaking out of multi-week consolidation on high volume\n"
+        "  - AI/semiconductor names with strong earnings revisions\n"
+        "  - Stocks hitting 52-week highs with institutional buying\n"
+        "  - High-beta tech names (NVDA, AMD, MSTR, PLTR, SMCI, IONQ, RKLB)\n\n"
+        "SHORT SQUEEZE SETUPS:\n"
+        "  - High short interest (above 20% of float)\n"
+        "  - Low days-to-cover with positive catalyst upcoming\n"
+        "  - Recent short squeeze momentum (GME-style but smaller)\n\n"
+        "EARNINGS SURPRISE PLAYS:\n"
+        "  - Companies reporting earnings in next 5-10 days with beat potential\n"
+        "  - Low analyst estimates vs strong sector trends\n"
+        "  - Post-earnings drift on strong beats (buy dip after big gap up)\n\n"
+        "HOT SECTOR MOMENTUM:\n"
+        "  - Whatever sector has the hottest institutional money flow today\n"
+        "  - AI infrastructure, quantum computing, defense tech, space, nuclear energy\n"
+        "  - Names that haven't moved yet but peers already have\n\n"
+        "SPECIFIC STOCK UNIVERSE TO CONSIDER (high beta, volatile names):\n"
+        "  Biotech: SAVA, MDGL, ACAD, IONS, ARWR, VKTX, GILD, MRNA, BNTX, NVAX\n"
+        "  AI/Chips: NVDA, AMD, SMCI, MRVL, AVGO, PLTR, AI, SOUN, IONQ, RKLB\n"
+        "  Momentum: MSTR, COIN, HOOD, UPST, SOFI, AFRM, RDFN, OPEN\n"
+        "  Squeeze candidates: Check highest short interest list\n"
+        "  Small cap momentum: Whatever is in the top movers list this week\n\n"
+
+        "=== ABSOLUTE RULES ===\n"
+        "1. SHARES ONLY. Never mention options, calls, puts, contracts, strike price,\n"
+        "   expiry, derivatives, futures, margin, or leverage. BUY SHARES, SELL SHARES.\n\n"
+        "2. REAL PRICES. Use realistic current prices.\n"
+        "   NVDA ~$900-1100, AMD ~$150-180, PLTR ~$80-120, MSTR ~$350-500,\n"
+        "   COIN ~$200-280, SMCI ~$35-60, SOUN ~$8-15, IONQ ~$25-45, RKLB ~$18-28.\n"
+        "   Biotech small caps vary widely - use reasonable estimates.\n\n"
+        "3. TWO PRICE TARGETS per pick:\n"
+        "   - Conservative target: 10-20% gain (more likely, take partial profits)\n"
+        "   - Aggressive target: 25-50% gain (if momentum is strong, let it ride)\n\n"
+        "4. TIGHT STOPS at 5-10% below entry (high volatility means wider stops).\n\n"
+        "5. SPECIFIC DATES:\n"
+        "   ~3 trading days = " + t3 + "\n"
+        "   ~5 trading days = " + t5 + "\n"
+        "   ~10 trading days = " + t10 + "\n"
+        "   ~14 trading days = " + t14 + "\n\n"
+        "6. SMALL POSITION SIZES. These are risky. Suggest 1-2% of portfolio max per pick.\n\n"
+        "7. Generate 6 to 15 picks. Include biotech, momentum, and squeeze plays.\n"
+        "   Include top_biotech_watch and short_squeeze_radar sections.\n\n"
+        "8. EXPLICITLY AVOID: AAPL, MSFT, GOOGL, AMZN, BRK.B, JNJ, PG, KO, XOM\n"
+        "   (These are stable large caps - wrong tool for this strategy)\n\n"
+
         "RESPOND WITH ONLY VALID JSON. No markdown. No explanation. No code fences.\n\n"
         + json_example
     )
@@ -164,7 +206,7 @@ def build_prompt():
 
 
 def generate_picks() -> dict:
-    print(f"Running disciplined stock analysis for {today_str}...")
+    print(f"Scanning for HIGH RISK / HIGH RETURN plays for {today_str}...")
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     response = client.messages.create(
@@ -177,7 +219,6 @@ def generate_picks() -> dict:
     raw = response.content[0].text.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
 
-    # Extract JSON object robustly
     start = raw.find('{')
     end   = raw.rfind('}') + 1
     if start != -1 and end > start:
@@ -186,20 +227,28 @@ def generate_picks() -> dict:
     data = json.loads(raw)
     picks = data.get("picks", [])
 
-    print(f"Generated {len(picks)} picks:")
+    print(f"\nGenerated {len(picks)} aggressive picks:")
+    print(f"{'#':<3} {'Ticker':<7} {'Buy':>10} {'Cons.Target':>12} {'Aggr.Target':>12} {'Stop':>10} {'Upside(C)':>10} {'Prob':>6} {'Days'}")
+    print("-" * 90)
     for p in picks:
-        ticker = str(p.get('ticker', '?')).ljust(6)
-        buy    = str(p.get('buy_price',  '?')).rjust(12)
-        sell   = str(p.get('sell_price', '?')).rjust(12)
-        stop   = str(p.get('stop_loss',  '?')).rjust(12)
-        up     = str(p.get('upside_pct', '?')).rjust(7)
-        prob   = str(p.get('probability_of_target', '?')).rjust(5)
-        days   = str(p.get('hold_days',  '?'))
-        print(f"  #{p.get('rank','?')} {ticker} | Buy {buy} -> Sell {sell} | Stop {stop} | {up} | {prob} prob | {days}")
+        print(
+            f"  #{str(p.get('rank','?')):<2} "
+            f"{str(p.get('ticker','?')):<7} "
+            f"{str(p.get('buy_price','?')):>10} "
+            f"{str(p.get('sell_price_conservative','?')):>12} "
+            f"{str(p.get('sell_price_aggressive','?')):>12} "
+            f"{str(p.get('stop_loss','?')):>10} "
+            f"{str(p.get('upside_conservative','?')):>10} "
+            f"{str(p.get('probability_of_target','?')):>6} "
+            f"{str(p.get('hold_days','?'))}"
+        )
 
-    skipped = data.get("stocks_considered_but_skipped", [])
-    if skipped:
-        print(f"  Skipped: {', '.join(s.get('ticker', '?') for s in skipped)}")
+    biotech = data.get("top_biotech_watch", [])
+    squeeze = data.get("short_squeeze_radar", [])
+    if biotech:
+        print(f"\nBiotech watch ({len(biotech)}): {', '.join(b.get('ticker','?') for b in biotech)}")
+    if squeeze:
+        print(f"Squeeze radar ({len(squeeze)}): {', '.join(s.get('ticker','?') for s in squeeze)}")
 
     return data
 
@@ -207,7 +256,7 @@ def generate_picks() -> dict:
 def save_picks(data: dict):
     with open(OUTPUT_FILE, "w") as f:
         json.dump(data, f, indent=2)
-    print(f"Saved to {OUTPUT_FILE}")
+    print(f"\nSaved to {OUTPUT_FILE}")
 
 
 def send_pushover(data: dict):
@@ -220,29 +269,30 @@ def send_pushover(data: dict):
         return
 
     hi = [p for p in picks if p.get("conviction") == "high"]
-    me = [p for p in picks if p.get("conviction") == "medium"]
-    sp = [p for p in picks if p.get("conviction") == "speculative"]
-
     lines = [
+        "AGGRESSIVE PICKS - HIGH RISK / HIGH RETURN",
         data.get("market_summary", ""),
-        f"{len(picks)} picks: {len(hi)} high / {len(me)} medium / {len(sp)} speculative\n"
+        f"{len(picks)} picks | {len(hi)} high conviction\n"
     ]
 
     for p in picks[:6]:
-        icon = {"high": "[HIGH]", "medium": "[MED]", "speculative": "[SPEC]"}.get(
+        icon = {"high": "[HOT]", "medium": "[WARM]", "speculative": "[SPEC]"}.get(
             p.get("conviction", ""), "")
-        bd = str(p.get('buy_by_date',  '?'))[:6]
-        sd = str(p.get('sell_by_date', '?'))[:6]
         lines.append(
             f"{icon} {p.get('ticker')} | "
-            f"Buy {p.get('buy_price')} by {bd} | "
-            f"Sell {p.get('sell_price')} by {sd} | "
+            f"Buy {p.get('buy_price')} | "
+            f"Target {p.get('sell_price_conservative')} / {p.get('sell_price_aggressive')} | "
             f"Stop {p.get('stop_loss')} | "
-            f"{p.get('upside_pct')} | {p.get('probability_of_target', '?')} prob"
+            f"{p.get('upside_conservative')} - {p.get('upside_aggressive')} | "
+            f"{p.get('probability_of_target','?')} prob"
         )
 
     if len(picks) > 6:
-        lines.append(f"...and {len(picks) - 6} more on dashboard")
+        lines.append(f"...+{len(picks)-6} more on dashboard")
+
+    biotech = data.get("top_biotech_watch", [])
+    if biotech:
+        lines.append(f"\nBiotech watch: {', '.join(b.get('ticker','?') for b in biotech)}")
 
     wisdom = data.get("daily_wisdom", "")
     if wisdom:
@@ -253,20 +303,16 @@ def send_pushover(data: dict):
         data={
             "token":     PUSHOVER_TOKEN,
             "user":      PUSHOVER_USER,
-            "title":     f"AlphaSignal - {len(picks)} Picks | {today_str}",
+            "title":     f"AlphaSignal AGGRESSIVE - {len(picks)} Picks | {today_str}",
             "message":   "\n".join(lines),
             "url":       DASHBOARD_URL,
-            "url_title": "View full dashboard",
-            "priority":  0,
+            "url_title": "View dashboard",
+            "priority":  1,
             "sound":     "cashregister",
         },
         timeout=10
     )
-
-    if r.status_code == 200:
-        print("Pushover notification sent")
-    else:
-        print(f"Pushover failed: {r.status_code} - {r.text}")
+    print("Pushover sent" if r.status_code == 200 else f"Pushover failed: {r.status_code}")
 
 
 if __name__ == "__main__":
