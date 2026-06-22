@@ -205,53 +205,105 @@ def build_prompt():
     return prompt
 
 
-def generate_picks() -> dict:
-    print(f"Scanning for HIGH RISK / HIGH RETURN plays for {today_str}...")
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-    response = client.messages.create(
-        model="claude-sonnet-4-5",
-        max_tokens=8000,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": build_prompt()}]
-    )
-
-    raw = response.content[0].text.strip()
+def _clean_raw(raw: str) -> str:
+    """Strip markdown fences and extract the outermost JSON object."""
+    raw = raw.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
-
     start = raw.find('{')
     end   = raw.rfind('}') + 1
     if start != -1 and end > start:
         raw = raw[start:end]
+    return raw
 
-    data = json.loads(raw)
-    picks = data.get("picks", [])
 
-    print(f"\nGenerated {len(picks)} aggressive picks:")
-    print(f"{'#':<3} {'Ticker':<7} {'Buy':>10} {'Cons.Target':>12} {'Aggr.Target':>12} {'Stop':>10} {'Upside(C)':>10} {'Prob':>6} {'Days'}")
-    print("-" * 90)
-    for p in picks:
-        print(
-            f"  #{str(p.get('rank','?')):<2} "
-            f"{str(p.get('ticker','?')):<7} "
-            f"{str(p.get('buy_price','?')):>10} "
-            f"{str(p.get('sell_price_conservative','?')):>12} "
-            f"{str(p.get('sell_price_aggressive','?')):>12} "
-            f"{str(p.get('stop_loss','?')):>10} "
-            f"{str(p.get('upside_conservative','?')):>10} "
-            f"{str(p.get('probability_of_target','?')):>6} "
-            f"{str(p.get('hold_days','?'))}"
-        )
+def _try_parse(raw: str) -> dict:
+    """Try json.loads first, then attempt common missing-comma repairs."""
+    import re
 
-    biotech = data.get("top_biotech_watch", [])
-    squeeze = data.get("short_squeeze_radar", [])
-    if biotech:
-        print(f"\nBiotech watch ({len(biotech)}): {', '.join(b.get('ticker','?') for b in biotech)}")
-    if squeeze:
-        print(f"Squeeze radar ({len(squeeze)}): {', '.join(s.get('ticker','?') for s in squeeze)}")
+    # Attempt 1: parse as-is
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
 
-    return data
+    # Attempt 2: fix missing comma between closing brace/bracket and next key
+    # e.g.  }\n    "next_key"  ->  },\n    "next_key"
+    repaired = re.sub(r'([}\]])\s*\n(\s*")', r'\1,\n\2', raw)
+    try:
+        return json.loads(repaired)
+    except json.JSONDecodeError:
+        pass
 
+    # Attempt 3: also fix missing comma between a string value and next key
+    # e.g.  "value"\n    "next_key"  ->  "value",\n    "next_key"
+    repaired2 = re.sub(r'(")\s*\n(\s*")', r'\1,\n\2', repaired)
+    try:
+        return json.loads(repaired2)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"JSON repair exhausted: {e}") from e
+
+
+def generate_picks() -> dict:
+    print(f"Scanning for HIGH RISK / HIGH RETURN plays for {today_str}...")
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    MAX_ATTEMPTS = 3
+    last_err = None
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        if attempt > 1:
+            print(f"  Retry {attempt}/{MAX_ATTEMPTS} after JSON parse failure...")
+
+        try:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=8000,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": build_prompt()}]
+            )
+            raw  = response.content[0].text.strip()
+            raw  = _clean_raw(raw)
+            data = _try_parse(raw)
+        except (ValueError, json.JSONDecodeError) as e:
+            last_err = e
+            print(f"  Parse error on attempt {attempt}: {e}")
+            continue
+        except Exception:
+            raise  # don't retry on API/network errors
+
+        # success
+        picks = data.get("picks", [])
+
+        print(f"\nGenerated {len(picks)} aggressive picks:")
+        print(f"{'#':<3} {'Ticker':<7} {'Buy':>10} {'Cons.Target':>12} {'Aggr.Target':>12} {'Stop':>10} {'Upside(C)':>10} {'Prob':>6} {'Days'}")
+        print("-" * 90)
+        for p in picks:
+            print(
+                f"  #{str(p.get('rank','?')):<2} "
+                f"{str(p.get('ticker','?')):<7} "
+                f"{str(p.get('buy_price','?')):>10} "
+                f"{str(p.get('sell_price_conservative','?')):>12} "
+                f"{str(p.get('sell_price_aggressive','?')):>12} "
+                f"{str(p.get('stop_loss','?')):>10} "
+                f"{str(p.get('upside_conservative','?')):>10} "
+                f"{str(p.get('probability_of_target','?')):>6} "
+                f"{str(p.get('hold_days','?'))}"
+            )
+
+        biotech = data.get("top_biotech_watch", [])
+        squeeze = data.get("short_squeeze_radar", [])
+        if biotech:
+            print(f"\nBiotech watch ({len(biotech)}): {', '.join(b.get('ticker','?') for b in biotech)}")
+        if squeeze:
+            print(f"Squeeze radar ({len(squeeze)}): {', '.join(s.get('ticker','?') for s in squeeze)}")
+
+        return data
+
+    # all retries exhausted
+    raise RuntimeError(
+        f"Failed to parse valid JSON after {MAX_ATTEMPTS} attempts. "
+        f"Last error: {last_err}"
+    )
 
 def save_picks(data: dict):
     with open(OUTPUT_FILE, "w") as f:
