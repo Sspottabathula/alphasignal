@@ -257,10 +257,18 @@ def generate_picks() -> dict:
         try:
             response = client.messages.create(
                 model="claude-sonnet-4-6",
-                max_tokens=8000,
+                max_tokens=16000,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": build_prompt()}]
             )
+
+            # Detect token truncation BEFORE trying to parse
+            if response.stop_reason == "max_tokens":
+                chars = len(response.content[0].text)
+                last_err = RuntimeError(f"Response truncated at {chars} chars")
+                print(f"  Truncation on attempt {attempt}: output cut off mid-JSON, retrying...")
+                continue
+
             raw  = response.content[0].text.strip()
             raw  = _clean_raw(raw)
             data = _try_parse(raw)

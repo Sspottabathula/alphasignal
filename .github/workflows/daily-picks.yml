@@ -2,8 +2,10 @@ name: Daily Stock Picks
 
 on:
   schedule:
-    - cron: '15 14 * * 1-5'  # 9:15 AM ET (14:15 UTC), Mon-Fri only
-  workflow_dispatch:            # allows manual trigger from GitHub UI
+    # Arizona (MST) = UTC-7 year-round (no DST)
+    # Target: 8:30 AM MST = 15:30 UTC  →  well before 9:30 AM ET market open
+    - cron: '30 15 * * 1-5'
+  workflow_dispatch:  # allows manual trigger from GitHub UI
 
 jobs:
   generate-picks:
